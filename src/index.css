@@ -1,0 +1,85 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 48 100% 98%; /* Cream background */
+    --foreground: 240 100% 16%; /* Navy text */
+    --border: 187 94% 27%; /* Teal border */
+    --input: 187 94% 27%; /* Teal input */
+    --ring: 240 100% 16%; /* Navy ring */
+    --radius: 0.5rem;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom animations */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition-duration: 0.3s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Card styles */
+.card {
+  @apply bg-white rounded-lg shadow-sm transition-all hover:shadow-md;
+}
+
+/* Button styles */
+.btn {
+  @apply px-4 py-2 rounded-md transition-all duration-200 ease-in-out;
+}
+
+.btn-primary {
+  @apply bg-primary text-primary-foreground hover:opacity-90;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/90;
+}
+
+.btn-accent {
+  @apply bg-accent text-accent-foreground hover:opacity-90;
+}
