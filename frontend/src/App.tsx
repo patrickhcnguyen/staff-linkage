@@ -1,6 +1,5 @@
-
 import { Routes, Route } from "react-router-dom";
-import Navigation from "@/components/Navigation";
+import Navigation from "@/Shared/components/Navigation";
 import Index from "@/pages/Index";
 import Dashboard from "@/pages/Dashboard";
 import EditProfile from "@/pages/EditProfile";
@@ -26,7 +25,7 @@ import SignIn from "@/pages/SignIn";
 import About from "@/pages/About";
 import StaffInfo from "@/pages/StaffInfo";
 import CompanyInfo from "@/pages/CompanyInfo";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/Shared/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 function App() {
