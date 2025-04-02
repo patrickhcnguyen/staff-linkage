@@ -1,8 +1,8 @@
 
 import { Trophy, Star, Clock, Users, Award, Target, Sparkles } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Shared/components/ui/card";
+import { Progress } from "@/Shared/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Shared/components/ui/tabs";
 
 const Achievements = () => {
   const earnedAchievements = [

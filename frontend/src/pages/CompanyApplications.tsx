@@ -7,23 +7,23 @@ import {
   CardDescription, 
   CardHeader, 
   CardTitle 
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "@/Shared/components/ui/card";
+import { Button } from "@/Shared/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Shared/components/ui/tabs";
 import { 
   Dialog, 
   DialogContent, 
   DialogDescription, 
   DialogHeader, 
   DialogTitle 
-} from "@/components/ui/dialog";
+} from "@/Shared/components/ui/dialog";
 import { Briefcase, ClipboardList, FileText, MessageSquare } from "lucide-react";
 import { useCompanyApplications } from "@/hooks/useCompanyApplications";
-import ApplicationsTable from "@/components/applications/ApplicationsTable";
+import ApplicationsTable from "@/Shared/components/applications/ApplicationsTable";
 import { JobApplication } from "@/services/jobService";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Shared/components/ui/avatar";
+import { Badge } from "@/Shared/components/ui/badge";
+import { ScrollArea } from "@/Shared/components/ui/scroll-area";
 
 const CompanyApplications = () => {
   const navigate = useNavigate();

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Shared/components/ui/tabs";
 import {
   Form,
   FormControl,
@@ -12,9 +12,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from "@/Shared/components/ui/form";
+import { Input } from "@/Shared/components/ui/input";
+import { Button } from "@/Shared/components/ui/button";
 import { toast } from "sonner";
 import { Briefcase, User, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";

@@ -1,11 +1,11 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { StripeWrapper } from "@/components/StripeWrapper";
-import { PaymentForm } from "@/components/PaymentForm";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Shared/components/ui/card";
+import { Button } from "@/Shared/components/ui/button";
+import { Badge } from "@/Shared/components/ui/badge";
+import { ScrollArea } from "@/Shared/components/ui/scroll-area";
+import { StripeWrapper } from "@/Shared/components/StripeWrapper";
+import { PaymentForm } from "@/Shared/components/PaymentForm";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from "@/Shared/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -21,7 +21,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/Shared/components/ui/table";
 import { Crown, CreditCard, CalendarDays, CheckCircle, Star, Clock, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 

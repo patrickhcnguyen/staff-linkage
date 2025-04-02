@@ -1,15 +1,15 @@
 
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/Shared/components/ui/progress";
+import { Button } from "@/Shared/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Shared/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Shared/components/ui/avatar";
 import { CalendarDays, Trophy, Star, StarOff, Share2 } from "lucide-react";
 import { 
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/Shared/components/ui/tooltip";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";

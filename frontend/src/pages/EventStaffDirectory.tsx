@@ -1,8 +1,8 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/Shared/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Shared/components/ui/avatar";
 import { MapPin, Building, Star } from "lucide-react";
 
 const EventStaffDirectory = () => {

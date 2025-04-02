@@ -1,24 +1,24 @@
 
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Shared/components/ui/card";
+import { Badge } from "@/Shared/components/ui/badge";
+import { Button } from "@/Shared/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Shared/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@/Shared/components/ui/dialog";
+import { Input } from "@/Shared/components/ui/input";
+import { Label } from "@/Shared/components/ui/label";
+import { Textarea } from "@/Shared/components/ui/textarea";
+import { ScrollArea } from "@/Shared/components/ui/scroll-area";
 import { MapPin, Calendar, DollarSign, Clock, Star, Users, CheckCircle2, XCircle, MessageSquare, Mail, Phone } from "lucide-react";
 import { toast } from "sonner";
-
+  
 interface Applicant {
   id: number;
   name: string;

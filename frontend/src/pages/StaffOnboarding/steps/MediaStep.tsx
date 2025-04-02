@@ -1,9 +1,9 @@
 
 import { UseFormReturn } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/Shared/components/ui/button";
+import { Input } from "@/Shared/components/ui/input";
 import { SocialMediaValues } from "../useStaffOnboardingForm";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/Shared/components/ui/form";
 
 interface MediaStepProps {
   form: UseFormReturn<SocialMediaValues>;

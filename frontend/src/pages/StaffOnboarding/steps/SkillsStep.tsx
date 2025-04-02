@@ -1,9 +1,9 @@
 
 import { UseFormReturn } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/Shared/components/ui/button";
+import { Checkbox } from "@/Shared/components/ui/checkbox";
 import { SkillsValues } from "../useStaffOnboardingForm";
-import { Form } from "@/components/ui/form";
+import { Form } from "@/Shared/components/ui/form";
 import { skillsCategories } from "../skillsData";
 
 interface SkillsStepProps {

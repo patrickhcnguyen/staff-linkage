@@ -1,9 +1,9 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SearchFilters } from "@/components/talent/SearchFilters";
-import { TalentCard } from "@/components/talent/TalentCard";
-import { TalentProfileSheet } from "@/components/talent/TalentProfileSheet";
+import { SearchFilters } from "@/Shared/components/talent/SearchFilters";
+import { TalentCard } from "@/Shared/components/talent/TalentCard";
+import { TalentProfileSheet } from "@/Shared/components/talent/TalentProfileSheet";
 import { calculateDistance } from "@/utils/distance";
 import { TalentBase } from "@/types/talent";
 

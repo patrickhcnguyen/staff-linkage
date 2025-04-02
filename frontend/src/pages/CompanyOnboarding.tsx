@@ -10,12 +10,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+} from "@/Shared/components/ui/form";
+import { Input } from "@/Shared/components/ui/input";
+import { Button } from "@/Shared/components/ui/button";
+import { Progress } from "@/Shared/components/ui/progress";
+import { Textarea } from "@/Shared/components/ui/textarea";
+import { Label } from "@/Shared/components/ui/label";
 import { Building, Users, Briefcase, Handshake, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadCompanyLogo } from "@/services/companyServiceSupabase";

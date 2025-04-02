@@ -1,9 +1,9 @@
 import { useRef, useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent } from "@/Shared/components/ui/card";
+import { Input } from "@/Shared/components/ui/input";
+import { Button } from "@/Shared/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Shared/components/ui/avatar";
+import { ScrollArea } from "@/Shared/components/ui/scroll-area";
 import { Send } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";

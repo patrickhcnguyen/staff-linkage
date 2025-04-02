@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Progress } from "@/components/ui/progress";
+import { Progress } from "@/Shared/components/ui/progress";
 import BasicInfoStep from "./steps/BasicInfoStep";
 import MediaStep from "./steps/MediaStep";
 import SkillsStep from "./steps/SkillsStep";

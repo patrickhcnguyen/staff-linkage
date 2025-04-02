@@ -1,9 +1,9 @@
 
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Shared/components/ui/avatar";
 import { MapPin, Building, Star, Mail, Phone, Globe, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/Shared/components/ui/button";
 import { getCompanyById, CompanyProfileDB } from "@/services/companyServiceSupabase";
 
 const CompanyProfile = () => {

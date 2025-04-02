@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
+import { Button } from "@/Shared/components/ui/button";
+import { Input } from "@/Shared/components/ui/input";
+import { Label } from "@/Shared/components/ui/label";
+import { Textarea } from "@/Shared/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Shared/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Shared/components/ui/avatar";
+import { Progress } from "@/Shared/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import {
   Camera,
@@ -26,8 +26,8 @@ import {
   Star,
   Users
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/Shared/components/ui/dialog";
+import { Separator } from "@/Shared/components/ui/separator";
 import { 
   getCompanyProfile, 
   updateCompanyProfile, 

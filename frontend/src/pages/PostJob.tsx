@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Progress } from "@/components/ui/progress";
+import { Button } from "@/Shared/components/ui/button";
+import { Input } from "@/Shared/components/ui/input";
+import { Textarea } from "@/Shared/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/Shared/components/ui/radio-group";
+import { Progress } from "@/Shared/components/ui/progress";
 import {
   Form,
   FormControl,
@@ -15,7 +15,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/Shared/components/ui/form";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import mapboxgl from 'mapbox-gl';
@@ -23,8 +23,8 @@ import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '../styles/mapbox-geocoder.css';
-import { StripeWrapper } from "@/components/StripeWrapper";
-import { PaymentForm } from "@/components/PaymentForm";
+import { StripeWrapper } from "@/Shared/components/StripeWrapper";
+import { PaymentForm } from "@/Shared/components/PaymentForm";
 
 const steps = [
   { id: 1, name: "Brand Visibility & Description" },

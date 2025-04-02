@@ -1,11 +1,11 @@
 
 import { UseFormReturn } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/Shared/components/ui/button";
+import { Input } from "@/Shared/components/ui/input";
 import { BasicInfoValues } from "../useStaffOnboardingForm";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/Shared/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Shared/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/Shared/components/ui/radio-group";
 
 interface BasicInfoStepProps {
   form: UseFormReturn<BasicInfoValues>;

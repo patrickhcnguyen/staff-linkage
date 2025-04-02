@@ -2,14 +2,14 @@
 import { useState, useEffect } from "react";
 import { Calendar, MapPin, User, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/Shared/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Shared/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Shared/components/ui/tabs";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/Shared/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +19,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/Shared/components/ui/alert-dialog";
 
 interface JobBooking {
   id: string;

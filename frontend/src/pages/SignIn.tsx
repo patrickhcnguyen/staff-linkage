@@ -11,9 +11,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from "@/Shared/components/ui/form";
+import { Input } from "@/Shared/components/ui/input";
+import { Button } from "@/Shared/components/ui/button";
 import { toast } from "sonner";
 import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,8 +24,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+} from "@/Shared/components/ui/dialog";
+import { Alert, AlertTitle, AlertDescription } from "@/Shared/components/ui/alert";
 import { supabase } from "@/lib/supabase";
 
 const signInSchema = z.object({

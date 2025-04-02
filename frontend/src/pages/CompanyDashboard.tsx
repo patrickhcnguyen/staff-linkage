@@ -1,12 +1,12 @@
 
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/Shared/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCompanyData } from "@/hooks/useCompanyData";
-import { CompanyProfileCard } from "@/components/dashboard/CompanyProfile";
-import ProfileCompletion from "@/components/dashboard/ProfileCompletion";
-import CompanyStats from "@/components/dashboard/CompanyStats";
-import ActiveJobs from "@/components/dashboard/ActiveJobs";
+import { CompanyProfileCard } from "@/Shared/components/dashboard/CompanyProfile";
+import ProfileCompletion from "@/Shared/components/dashboard/ProfileCompletion";
+import CompanyStats from "@/Shared/components/dashboard/CompanyStats";
+import ActiveJobs from "@/Shared/components/dashboard/ActiveJobs";
 import { Loader2 } from "lucide-react";
 
 const CompanyDashboard = () => {

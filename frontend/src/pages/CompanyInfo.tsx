@@ -1,7 +1,7 @@
 
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/Shared/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/Shared/components/ui/card';
 import { Check, Users, Search, Calendar, DollarSign, ShieldCheck, Clock, Zap } from 'lucide-react';
 
 const BenefitCard = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => (
