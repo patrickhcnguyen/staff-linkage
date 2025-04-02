@@ -15,7 +15,7 @@ import { Separator } from "@/Shared/components/ui/separator";
 import { DialogFooter } from "@/Shared/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Shared/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/Shared/components/ui/radio-group";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/Shared/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { getUserProfile, updateUserProfile, uploadAvatar, UserProfile } from "@/services/userService";
 import mapboxgl from 'mapbox-gl';

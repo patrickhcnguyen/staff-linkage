@@ -7,7 +7,7 @@ import { Textarea } from "@/Shared/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Shared/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Shared/components/ui/avatar";
 import { Progress } from "@/Shared/components/ui/progress";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/Shared/hooks/use-toast";
 import {
   Camera,
   Building,
@@ -35,7 +35,7 @@ import {
   calculateProfileCompletion,
   CompanyProfile
 } from "@/services/companyService";
-import { useCompanyData } from "@/hooks/useCompanyData";
+import { useCompanyData } from "@/Shared/hooks/useCompanyData";
 
 const EditCompanyProfile = () => {
   const navigate = useNavigate();

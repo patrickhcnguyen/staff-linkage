@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/Shared/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCompanyData } from "@/hooks/useCompanyData";
+import { useCompanyData } from "@/Shared/hooks/useCompanyData";
 import { CompanyProfileCard } from "@/Shared/components/dashboard/CompanyProfile";
 import ProfileCompletion from "@/Shared/components/dashboard/ProfileCompletion";
 import CompanyStats from "@/Shared/components/dashboard/CompanyStats";

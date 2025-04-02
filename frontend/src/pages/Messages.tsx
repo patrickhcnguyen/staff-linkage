@@ -7,7 +7,7 @@ import { ScrollArea } from "@/Shared/components/ui/scroll-area";
 import { Send } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMessages } from "@/hooks/useMessages";
+import { useMessages } from "@/Shared/hooks/useMessages";
 import { format } from "date-fns";
 
 const Messages = () => {

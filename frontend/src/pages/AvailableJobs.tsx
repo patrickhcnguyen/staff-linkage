@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { Calendar as CalendarComponent } from "@/Shared/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/Shared/components/ui/dialog";
 import { Textarea } from "@/Shared/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/Shared/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 

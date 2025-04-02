@@ -18,7 +18,7 @@ import {
   DialogTitle 
 } from "@/Shared/components/ui/dialog";
 import { Briefcase, ClipboardList, FileText, MessageSquare } from "lucide-react";
-import { useCompanyApplications } from "@/hooks/useCompanyApplications";
+import { useCompanyApplications } from "@/Shared/hooks/useCompanyApplications";
 import ApplicationsTable from "@/Shared/components/applications/ApplicationsTable";
 import { JobApplication } from "@/services/jobService";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Shared/components/ui/avatar";
