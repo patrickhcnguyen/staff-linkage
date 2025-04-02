@@ -4,7 +4,7 @@ import { Button } from "@/Shared/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Shared/components/ui/avatar";
 import { Card, CardContent } from "@/Shared/components/ui/card";
 import { Share2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/Shared/hooks/use-toast";
 import { CompanyProfileDB } from "@/services/companyServiceSupabase";
 import {
   Dialog,
