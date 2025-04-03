@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SearchFilters } from "@/Shared/components/talent/SearchFilters";
 import { TalentCard } from "@/Shared/components/talent/TalentCard";
 import { TalentProfileSheet } from "@/Shared/components/talent/TalentProfileSheet";
-import { calculateDistance } from "@/utils/distance";
+import { calculateDistance } from "@/Shared/utils/distance";
 import { TalentBase } from "@/types/talent";
 
 const talents: TalentBase[] = [

@@ -21,7 +21,7 @@ import { getUserProfile, updateUserProfile, uploadAvatar, UserProfile } from "@/
 import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
-import '@/styles/mapbox-geocoder.css';
+import '@/styles/features/map/mapbox-geocoder.css';
 
 interface Certification {
   name: string;

@@ -8,7 +8,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@/components/*": ["./src/Shared/components/*"]
+      "@/components/*": ["./src/Shared/components/*"],
+      "@/styles/*": ["./src/styles/*"]
     },
     "noImplicitAny": false,
     "noUnusedParameters": false,
