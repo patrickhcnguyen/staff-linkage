@@ -20,8 +20,12 @@ import StaffOnboarding from "@/pages/StaffOnboarding";
 import EditCompanyProfile from "@/pages/EditCompanyProfile";
 import TalentDirectory from "@/pages/TalentDirectory";
 import CompanyMembership from "@/pages/CompanyMembership";
-import SignUp from "@/pages/SignUp";
-import SignIn from "@/pages/SignIn";
+
+// Authentication
+import SignUp from "@/Features/authentication/SignUp/SignUp";
+import SignIn from "@/Features/authentication/SignIn/SignIn";
+import VerifyEmail from "@/Features/authentication/VerifyEmail/VerifyEmail";
+
 import About from "@/pages/About";
 import StaffInfo from "@/pages/StaffInfo";
 import CompanyInfo from "@/pages/CompanyInfo";
@@ -33,14 +37,18 @@ function App() {
     <AuthProvider>
       <Navigation />
       <Routes>
+        {/* Authentication routes */}
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/login" element={<SignIn />} />
+        <Route path="/signin" element={<SignIn />} /> {/* Alternative route */}
+
         {/* Common routes */}
         <Route path="/" element={<Index />} />
         <Route path="/about" element={<About />} />
         <Route path="/staff-info" element={<StaffInfo />} />
         <Route path="/company-info" element={<CompanyInfo />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/login" element={<SignIn />} />
-        <Route path="/signin" element={<SignIn />} /> {/* Alternative route */}
+
         <Route path="/messages" element={<Messages />} />
         <Route path="/event-staff-directory" element={<EventStaffDirectory />} />
         <Route path="/event-staff-directory/:id" element={<CompanyProfile />} />
