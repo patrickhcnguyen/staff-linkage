@@ -15,36 +15,61 @@ const VerifyEmail = () => {
   const { user } = useAuth();
 
   const createProfileAndRedirect = async (currentUser: any) => {
-    // Get the pending profile data
-    const pendingProfile = localStorage.getItem('pendingProfile');
-    if (!pendingProfile) {
-      toast.error("Profile data not found. Please try signing up again.");
-      navigate('/signup');
-      return;
+    try {
+      // Get the pending profile data
+      const pendingProfile = localStorage.getItem('pendingProfile');
+      if (!pendingProfile) {
+        toast.error("Profile data not found. Please try signing up again.");
+        navigate('/signup');
+        return;
+      }
+
+      const profileData = JSON.parse(pendingProfile);
+
+      // Check if profile already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', currentUser.id)
+        .single();
+
+      if (existingProfile) {
+        // Profile already exists, just redirect
+        const role = profileData.role;
+        navigate(role === 'company' ? '/company-onboarding' : '/staff-onboarding');
+        return;
+      }
+
+      // Create initial profile in the profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          user_id: currentUser.id,
+          email: profileData.email,
+          phone: profileData.phone,
+          is_onboarded: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+
+      if (profileError) {
+        console.error("Error creating profile:", profileError);
+        toast.error("Failed to create profile. Please try again.");
+        return;
+      }
+
+      // Clear the pending profile data since it's now in the database
+      localStorage.removeItem('pendingProfile');
+      
+      // Success! Redirect to appropriate onboarding
+      toast.success("Email verified! Let's complete your profile.");
+      const role = profileData.role;
+      navigate(role === 'company' ? '/company-onboarding' : '/staff-onboarding');
+
+    } catch (error) {
+      console.error("Error in profile creation:", error);
+      toast.error("Something went wrong. Please try again.");
     }
-
-    const profileData = JSON.parse(pendingProfile);
-
-    // Create the profile
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({
-        user_id: currentUser.id,
-        email: profileData.email,
-        phone: profileData.phone,
-        is_onboarded: false
-      });
-
-    if (profileError) {
-      console.error("Error creating profile:", profileError);
-      toast.error("Failed to create profile. Please try again.");
-      return;
-    }
-
-    localStorage.removeItem('pendingProfile');
-
-    const role = profileData.role;
-    navigate(role === 'company' ? '/company-onboarding' : '/staff-onboarding');
   };
 
   const checkVerification = async () => {
@@ -113,6 +138,25 @@ const VerifyEmail = () => {
       checkVerification();
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    // Listen for verification success from other tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'emailVerified' && e.newValue === 'true') {
+        // Close this tab
+        window.close();
+        // Fallback if tab can't be closed - redirect to onboarding
+        const pendingProfile = localStorage.getItem('pendingProfile');
+        if (pendingProfile) {
+          const { role } = JSON.parse(pendingProfile);
+          navigate(role === 'company' ? '/company-onboarding' : '/staff-onboarding');
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [navigate]);
 
   return (
     <div className="container max-w-lg mx-auto px-4 py-8">
