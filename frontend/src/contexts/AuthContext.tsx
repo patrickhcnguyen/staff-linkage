@@ -15,7 +15,8 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Hard-code the Lovable domain for this project
-const SITE_URL = 'https://staff-linkage.lovable.space';
+// change later
+const SITE_URL = 'http://localhost:8080';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -58,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log("Signing up with email:", email);
     
     // Use the Lovable domain for redirects
-    const redirectTo = `${SITE_URL}/login`;
+    const redirectTo = `${SITE_URL}/verification-success`;
     
     console.log("Using redirect URL:", redirectTo);
     
