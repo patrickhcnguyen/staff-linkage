@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -18,7 +17,6 @@ import { Button } from "@/Shared/components/ui/button";
 import { toast } from "sonner";
 import { Briefcase, User, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/lib/supabase";
 
 const signUpSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -52,13 +50,10 @@ const SignUp = () => {
     try {
       setIsSubmitting(true);
       
-      // Log the attempt for debugging
-      console.log("Attempting to sign up with:", values.email, "as", role);
-      
       const { data, error } = await signUp(values.email, values.password, {
         data: {
           phone: values.phone,
-          role: role,  // Important: Store the selected role in user metadata
+          role: role,
         }
       });
       
@@ -68,27 +63,15 @@ const SignUp = () => {
         return;
       }
       
-      console.log("Signup response:", data);
-      
-      // If we have a user, success
       if (data.user) {
         toast.success("Account created! Please check your email for verification.");
-        supabase.auth.updateUser({
-          data: {
-            phone: values.phone,
-            role: role,
-          }
-        });
+        localStorage.setItem('pendingProfile', JSON.stringify({
+          email: values.email,
+          phone: values.phone,
+          role: role
+        }));
         
-        // Redirect based on role
-        if (role === "company") {
-          navigate("/company-onboarding");
-        } else {
-          navigate("/staff-onboarding");
-        }
-      } else {
-        // Something unexpected in the response
-        toast.error("Unexpected response from server. Please try again.");
+        navigate("/verify-email");
       }
     } catch (error: any) {
       console.error("Error during signup:", error);

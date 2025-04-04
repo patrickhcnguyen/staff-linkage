@@ -22,7 +22,7 @@ import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import '../styles/mapbox-geocoder.css';
+import "@/styles/features/map/mapbox-geocoder.css";
 import { StripeWrapper } from "@/Shared/components/StripeWrapper";
 import { PaymentForm } from "@/Shared/components/PaymentForm";
 

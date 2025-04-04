@@ -18,7 +18,6 @@ import { Textarea } from "@/Shared/components/ui/textarea";
 import { Label } from "@/Shared/components/ui/label";
 import { Building, Users, Briefcase, Handshake, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { uploadCompanyLogo } from "@/services/companyServiceSupabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 

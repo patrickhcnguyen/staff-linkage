@@ -22,21 +22,12 @@ const Navigation = () => {
       }
 
       try {
-        // Get user role from profiles table
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('role, first_name, last_name')
-          .eq('id', user.id)
-          .single();
+        // get role
+        const role = user.user_metadata?.role || JSON.parse(localStorage.getItem('pendingProfile') || '{}').role;
         
-        if (error) {
-          console.error("Error determining user role:", error);
-          // Default to staff if error occurs
-          setUserRole("staff");
-        } else if (data?.role === 'company') {
+        if (role === 'company') {
           setUserRole("company");
           
-          // Check if company profile exists
           const { data: companyData, error: companyError } = await supabase
             .from('companies')
             .select('id')
@@ -55,14 +46,19 @@ const Navigation = () => {
           // Set user as staff
           setUserRole("staff");
           
-          // Check if staff has completed onboarding (has name filled in)
-          if (!data.first_name || !data.last_name) {
+          // Check if staff has completed onboarding
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('user_id', user.id)
+            .single();
+          
+          if (!error && (!data?.first_name || !data?.last_name)) {
             setStaffOnboardingNeeded(true);
           }
         }
       } catch (error) {
         console.error("Error determining user role:", error);
-        // Default to staff if error occurs
         setUserRole("staff");
       } finally {
         setLoading(false);
