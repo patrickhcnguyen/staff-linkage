@@ -25,6 +25,7 @@ import CompanyMembership from "@/pages/CompanyMembership";
 import SignUp from "@/Features/authentication/SignUp/SignUp";
 import SignIn from "@/Features/authentication/SignIn/SignIn";
 import VerifyEmail from "@/Features/authentication/VerifyEmail/VerifyEmail";
+import VerificationSuccess from "@/Features/authentication/VerifyEmail/VerificationSuccess";
 
 import About from "@/pages/About";
 import StaffInfo from "@/pages/StaffInfo";
@@ -42,6 +43,7 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/login" element={<SignIn />} />
         <Route path="/signin" element={<SignIn />} /> {/* Alternative route */}
+        <Route path="/verification-success" element={<VerificationSuccess />} />
 
         {/* Common routes */}
         <Route path="/" element={<Index />} />
@@ -71,6 +73,7 @@ function App() {
         <Route path="/company-onboarding" element={<CompanyOnboarding />} />
         <Route path="/edit-company-profile" element={<EditCompanyProfile />} />
         <Route path="/company-membership" element={<CompanyMembership />} />
+      
         
         {/* 404 route */}
         <Route path="*" element={<NotFound />} />
