@@ -15,8 +15,8 @@ import CompanyDashboard from "@/pages/CompanyDashboard";
 import CompanyApplications from "@/pages/CompanyApplications";
 import PostJob from "@/pages/PostJob";
 import NotFound from "@/pages/NotFound";
-import CompanyOnboarding from "@/pages/CompanyOnboarding";
-import StaffOnboarding from "@/pages/StaffOnboarding";
+
+
 import EditCompanyProfile from "@/pages/EditCompanyProfile";
 import TalentDirectory from "@/pages/TalentDirectory";
 import CompanyMembership from "@/pages/CompanyMembership";
@@ -26,6 +26,10 @@ import SignUp from "@/Features/authentication/SignUp/SignUp";
 import SignIn from "@/Features/authentication/SignIn/SignIn";
 import VerifyEmail from "@/Features/authentication/VerifyEmail/VerifyEmail";
 import VerificationSuccess from "@/Features/authentication/VerifyEmail/VerificationSuccess";
+
+// Onboarding 
+import CompanyOnboarding from "@/Features/Onboarding/CompanyOnboarding";
+import StaffOnboarding from "@/Features/Onboarding/StaffOnboarding";
 
 import About from "@/pages/About";
 import StaffInfo from "@/pages/StaffInfo";
