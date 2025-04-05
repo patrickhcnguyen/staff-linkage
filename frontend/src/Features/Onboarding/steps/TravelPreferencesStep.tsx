@@ -1,4 +1,3 @@
-
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/Shared/components/ui/button";
 import { Checkbox } from "@/Shared/components/ui/checkbox";
@@ -26,6 +25,8 @@ interface TravelPreferencesStepProps {
 }
 
 const TravelPreferencesStep = ({ form, onPrevious, onSubmit }: TravelPreferencesStepProps) => {
+  const travelNationally = form.watch("travelNationally");
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -39,7 +40,7 @@ const TravelPreferencesStep = ({ form, onPrevious, onSubmit }: TravelPreferences
             <div className="grid grid-cols-2 gap-4">
               <Button
                 type="button"
-                variant={form.getValues("travelNationally") ? "default" : "outline"}
+                variant={travelNationally ? "default" : "outline"}
                 onClick={() => form.setValue("travelNationally", true)}
                 className="w-full"
               >
@@ -47,7 +48,7 @@ const TravelPreferencesStep = ({ form, onPrevious, onSubmit }: TravelPreferences
               </Button>
               <Button
                 type="button"
-                variant={!form.getValues("travelNationally") ? "default" : "outline"}
+                variant={!travelNationally ? "default" : "outline"}
                 onClick={() => form.setValue("travelNationally", false)}
                 className="w-full"
               >
@@ -67,7 +68,7 @@ const TravelPreferencesStep = ({ form, onPrevious, onSubmit }: TravelPreferences
                   <SelectTrigger>
                     <SelectValue placeholder="Select travel duration" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-36">
                     <SelectItem value="up_to_1_month">Up to 1 Month</SelectItem>
                     <SelectItem value="up_to_3_months">Up to 3 Months or Less</SelectItem>
                     <SelectItem value="up_to_6_months">Up to 6 Months</SelectItem>
