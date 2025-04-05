@@ -43,20 +43,6 @@ const MediaStep = ({ form, onPrevious, onNext }: MediaStepProps) => {
                     />
                   </FormControl>
                   
-                  {photoPreview && (
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-20 h-20 rounded-full overflow-hidden border">
-                        <img 
-                          src={photoPreview} 
-                          alt="Profile preview" 
-                          className="object-cover w-full h-full"
-                        />
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {value?.[0]?.name}
-                      </p>
-                    </div>
-                  )}
                 </div>
                 <FormMessage />
               </FormItem>
@@ -78,21 +64,12 @@ const MediaStep = ({ form, onPrevious, onNext }: MediaStepProps) => {
                       {...field}
                     />
                   </FormControl>
-                  
-                  {value?.[0] && (
-                    <div className="flex items-center gap-2 p-3 rounded-md bg-muted">
-                      <p className="text-sm text-muted-foreground">
-                        Selected: {value[0].name}
-                      </p>
-                    </div>
-                  )}
                 </div>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          {/* Social Media Links */}
           <div className="space-y-4">
             {['facebook', 'instagram', 'twitter', 'linkedin'].map((social) => (
               <FormField
