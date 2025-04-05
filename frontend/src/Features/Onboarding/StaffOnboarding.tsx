@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Progress } from "@/Shared/components/ui/progress";
@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabase";
 const StaffOnboardingPage = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     basicInfoForm,
@@ -20,24 +21,73 @@ const StaffOnboardingPage = () => {
     travelPreferencesForm
   } = useStaffOnboardingForm();
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      console.log('Current session:', session); // Debug log
+      if (error || !session) {
+        console.error('Auth error:', error);
+        navigate('/login');
+      }
+    };
+
+    checkAuth();
+  }, []);
+
   const onSubmit = async () => {
     try {
+      setIsSubmitting(true);
+      
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
+      if (!user) throw new Error('Not authenticated');
+
+      console.log('Authenticated user ID:', user.id);
+
+      const basicInfo = basicInfoForm.getValues();
       const socialMediaValues = socialMediaForm.getValues();
-      
-      const formData = {
-        ...basicInfoForm.getValues(),
-        ...socialMediaValues,
-        ...skillsForm.getValues(),
-        ...travelPreferencesForm.getValues(),
-        profilePhoto: socialMediaValues.profilePhoto?.[0] || null,
-        resume: socialMediaValues.resume?.[0] || null,
-      };
-      
-      console.log("Form submitted:", formData);
-      toast.success("Profile created successfully!");
+      const travelPrefs = travelPreferencesForm.getValues();
+
+      // update user profile
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          first_name: basicInfo.firstName,
+          last_name: basicInfo.lastName,
+          address: basicInfo.address,
+          phone: basicInfo.phone,
+          experience_years: parseInt(basicInfo.experienceYears),
+          experience_months: parseInt(basicInfo.experienceMonths),
+          gender: basicInfo.gender,
+          birth_date: basicInfo.birthDate,
+          height_feet: parseInt(basicInfo.heightFeet),
+          height_inches: parseInt(basicInfo.heightInches),
+          facebook_url: socialMediaValues.facebook || null,
+          instagram_url: socialMediaValues.instagram || null,
+          twitter_url: socialMediaValues.twitter || null,
+          linkedin_url: socialMediaValues.linkedin || null,
+          skills: skillsForm.getValues().skills,
+          travel_nationally: travelPrefs.travelNationally,
+          travel_duration: travelPrefs.travelDuration,
+          notifications_enabled: travelPrefs.notifications,
+          terms_accepted: travelPrefs.termsAccepted,
+          is_onboarded: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        console.error('Update error:', updateError);
+        throw updateError;
+      }
+
+      toast.success("Profile updated successfully!");
       navigate("/dashboard");
-    } catch (error) {
-      toast.error("Something went wrong. Please try again.");
+    } catch (error: any) {
+      console.error("Error saving profile:", error);
+      toast.error(error.message || "Failed to save profile. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
