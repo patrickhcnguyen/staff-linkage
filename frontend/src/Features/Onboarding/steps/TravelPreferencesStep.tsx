@@ -17,6 +17,9 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/Shared/components/ui/select";
+import { useNavigate } from 'react-router-dom';
+
+const navigate = useNavigate();
 
 interface TravelPreferencesStepProps {
   form: UseFormReturn<TravelPreferencesValues>;
@@ -133,7 +136,13 @@ const TravelPreferencesStep = ({ form, onPrevious, onSubmit }: TravelPreferences
           >
             Previous
           </Button>
-          <Button type="submit" className="flex-1">
+          <Button 
+            type="submit" 
+            className="flex-1"
+            onClick={() => {
+              navigate('/dashboard');
+            }}
+          >
             Save Profile
           </Button>
         </div>
