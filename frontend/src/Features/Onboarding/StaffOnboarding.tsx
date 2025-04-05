@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -8,11 +7,10 @@ import MediaStep from "./steps/MediaStep";
 import SkillsStep from "./steps/SkillsStep";
 import TravelPreferencesStep from "./steps/TravelPreferencesStep";
 import { useStaffOnboardingForm } from "./useStaffOnboardingForm";
+import { supabase } from "@/lib/supabase";
 
 const StaffOnboardingPage = () => {
   const [step, setStep] = useState(1);
-  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
-  const [resume, setResume] = useState<File | null>(null);
   const navigate = useNavigate();
 
   const {
@@ -22,29 +20,17 @@ const StaffOnboardingPage = () => {
     travelPreferencesForm
   } = useStaffOnboardingForm();
 
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setProfilePhoto(file);
-    }
-  };
-
-  const handleResumeUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setResume(file);
-    }
-  };
-
   const onSubmit = async () => {
     try {
+      const socialMediaValues = socialMediaForm.getValues();
+      
       const formData = {
         ...basicInfoForm.getValues(),
-        ...socialMediaForm.getValues(),
+        ...socialMediaValues,
         ...skillsForm.getValues(),
         ...travelPreferencesForm.getValues(),
-        profilePhoto,
-        resume,
+        profilePhoto: socialMediaValues.profilePhoto?.[0] || null,
+        resume: socialMediaValues.resume?.[0] || null,
       };
       
       console.log("Form submitted:", formData);
@@ -87,8 +73,6 @@ const StaffOnboardingPage = () => {
             form={socialMediaForm}
             onPrevious={() => setStep(1)} 
             onNext={() => setStep(3)} 
-            handlePhotoUpload={handlePhotoUpload}
-            handleResumeUpload={handleResumeUpload}
           />
         )}
 
