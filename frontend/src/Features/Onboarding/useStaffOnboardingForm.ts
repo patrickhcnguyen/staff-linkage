@@ -1,7 +1,10 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; 
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+const ACCEPTED_RESUME_TYPES = ['application/pdf', 'application/doc'];
 
 const basicInfoSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -21,6 +24,30 @@ const socialMediaSchema = z.object({
   instagram: z.string().optional(),
   twitter: z.string().optional(),
   linkedin: z.string().optional(),
+  profilePhoto: z
+    .instanceof(FileList)
+    .refine(
+      (files) => !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
+      'Max image size is 5MB'
+    )
+    .refine(
+      (files) => !files || files.length === 0 || ACCEPTED_IMAGE_TYPES.includes(files[0].type),
+      "Only .jpg, .jpeg, .png and .webp formats are supported."
+    )
+    .optional()
+    .nullable(),
+  resume: z
+    .instanceof(FileList)
+    .refine(
+      (files) => !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
+      'Max file size is 5MB'
+    )
+    .refine(
+      (files) => !files || files.length === 0 || ACCEPTED_RESUME_TYPES.includes(files[0].type),
+      "Only PDF or doc format is supported."
+    )
+    .optional()
+    .nullable(),
 });
 
 const skillsSchema = z.object({
@@ -63,6 +90,8 @@ export const useStaffOnboardingForm = () => {
       instagram: "",
       twitter: "",
       linkedin: "",
+      profilePhoto: null,
+      resume: null
     },
   });
 
