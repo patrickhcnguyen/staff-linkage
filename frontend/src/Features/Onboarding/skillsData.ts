@@ -1,4 +1,3 @@
-// move somewhere else
 export const skillsCategories = [
     {
       name: "Hospitality & Guest Services",
