@@ -1,4 +1,4 @@
-
+import { useState, useEffect } from 'react';
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/Shared/components/ui/button";
 import { Input } from "@/Shared/components/ui/input";
@@ -9,48 +9,41 @@ interface MediaStepProps {
   form: UseFormReturn<SocialMediaValues>;
   onPrevious: () => void;
   onNext: () => void;
-  handlePhotoUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleResumeUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const MediaStep = ({ 
-  form, 
-  onPrevious, 
-  onNext,
-  handlePhotoUpload,
-  handleResumeUpload
-}: MediaStepProps) => {
+const MediaStep = ({ form, onPrevious, onNext }: MediaStepProps) => {
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const profilePhoto = form.watch('profilePhoto');
+
+  useEffect(() => {
+    if (profilePhoto?.[0]) {
+      const reader = new FileReader();
+      reader.onloadend = () => setPhotoPreview(reader.result as string);
+      reader.readAsDataURL(profilePhoto[0]);
+    }
+  }, [profilePhoto]);
+
   return (
     <div className="space-y-6">
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Profile Photo</h3>
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={handlePhotoUpload}
-        />
-      </div>
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Resume</h3>
-        <Input
-          type="file"
-          accept=".pdf"
-          onChange={handleResumeUpload}
-        />
-      </div>
-
       <Form {...form}>
         <form className="space-y-6">
           <FormField
             control={form.control}
-            name="facebook"
-            render={({ field }) => (
+            name="profilePhoto"
+            render={({ field: { onChange, value, ...field } }) => (
               <FormItem>
-                <FormLabel>Facebook</FormLabel>
-                <FormControl>
-                  <Input placeholder="facebook.com/" {...field} />
-                </FormControl>
+                <FormLabel>Profile Photo</FormLabel>
+                <div className="space-y-4">
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => onChange(e.target.files)}
+                      {...field}
+                    />
+                  </FormControl>
+                  
+                </div>
                 <FormMessage />
               </FormItem>
             )}
@@ -58,47 +51,51 @@ const MediaStep = ({
 
           <FormField
             control={form.control}
-            name="instagram"
-            render={({ field }) => (
+            name="resume"
+            render={({ field: { onChange, value, ...field } }) => (
               <FormItem>
-                <FormLabel>Instagram</FormLabel>
-                <FormControl>
-                  <Input placeholder="instagram.com/" {...field} />
-                </FormControl>
+                <FormLabel>Resume</FormLabel>
+                <div className="space-y-4">
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept=".pdf"
+                      onChange={(e) => onChange(e.target.files)}
+                      {...field}
+                    />
+                  </FormControl>
+                </div>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="twitter"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Twitter/X</FormLabel>
-                <FormControl>
-                  <Input placeholder="twitter.com/" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="space-y-4">
+            {['facebook', 'instagram', 'twitter', 'linkedin'].map((social) => (
+              <FormField
+                key={social}
+                control={form.control}
+                name={social as keyof SocialMediaValues}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="capitalize">{social}</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder={`${social}.com/${social === 'linkedin' ? 'in/' : ''}`} 
+                        value={field.value as string}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ))}
+          </div>
 
-          <FormField
-            control={form.control}
-            name="linkedin"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>LinkedIn</FormLabel>
-                <FormControl>
-                  <Input placeholder="linkedin.com/in/" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="flex gap-4">
+          <div className="flex gap-4 pt-4">
             <Button
               type="button"
               onClick={onPrevious}

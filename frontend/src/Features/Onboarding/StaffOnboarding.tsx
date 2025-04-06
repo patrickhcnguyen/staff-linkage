@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Progress } from "@/Shared/components/ui/progress";
@@ -8,12 +7,12 @@ import MediaStep from "./steps/MediaStep";
 import SkillsStep from "./steps/SkillsStep";
 import TravelPreferencesStep from "./steps/TravelPreferencesStep";
 import { useStaffOnboardingForm } from "./useStaffOnboardingForm";
+import { supabase } from "@/lib/supabase";
 
 const StaffOnboardingPage = () => {
   const [step, setStep] = useState(1);
-  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
-  const [resume, setResume] = useState<File | null>(null);
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     basicInfoForm,
@@ -22,36 +21,76 @@ const StaffOnboardingPage = () => {
     travelPreferencesForm
   } = useStaffOnboardingForm();
 
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setProfilePhoto(file);
-    }
-  };
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      console.log('Current session:', session); // Debug log
+      if (error || !session) {
+        console.error('Auth error:', error);
+        navigate('/login');
+      }
+    };
 
-  const handleResumeUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setResume(file);
-    }
-  };
+    checkAuth();
+  }, []);
 
   const onSubmit = async () => {
     try {
-      const formData = {
-        ...basicInfoForm.getValues(),
-        ...socialMediaForm.getValues(),
-        ...skillsForm.getValues(),
-        ...travelPreferencesForm.getValues(),
-        profilePhoto,
-        resume,
-      };
+      setIsSubmitting(true);
       
-      console.log("Form submitted:", formData);
-      toast.success("Profile created successfully!");
-      navigate("/dashboard");
-    } catch (error) {
-      toast.error("Something went wrong. Please try again.");
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
+      if (!user) throw new Error('Not authenticated');
+
+      const basicInfo = basicInfoForm.getValues();
+      const socialMediaValues = socialMediaForm.getValues();
+      const skillsValues = skillsForm.getValues();
+      const travelPrefs = travelPreferencesForm.getValues();
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          first_name: basicInfo.firstName,
+          last_name: basicInfo.lastName,
+          address: basicInfo.address,
+          phone: basicInfo.phone,
+          experience_years: Number(basicInfo.experienceYears),
+          experience_months: Number(basicInfo.experienceMonths),
+          gender: basicInfo.gender,
+          birth_date: basicInfo.birthDate,
+          height_feet: Number(basicInfo.heightFeet),
+          height_inches: Number(basicInfo.heightInches),
+          facebook_url: socialMediaValues.facebook,
+          instagram_url: socialMediaValues.instagram,
+          twitter_url: socialMediaValues.twitter,
+          linkedin_url: socialMediaValues.linkedin,
+          skills: skillsValues.skills,
+          travel_nationally: travelPrefs.travelNationally,
+          travel_duration: travelPrefs.travelDuration,
+          notifications_enabled: travelPrefs.notifications,
+          terms_accepted: travelPrefs.termsAccepted,
+          is_onboarded: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      toast.success("Profile updated successfully!", {
+        duration: 3000,
+        position: "top-center"
+      });
+      
+      window.location.href = "/dashboard";
+
+    } catch (error: any) {
+      console.error("Error saving profile:", error);
+      toast.error("Failed to save profile. Please try again.", {
+        duration: 3000,
+        position: "top-center"
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -87,8 +126,6 @@ const StaffOnboardingPage = () => {
             form={socialMediaForm}
             onPrevious={() => setStep(1)} 
             onNext={() => setStep(3)} 
-            handlePhotoUpload={handlePhotoUpload}
-            handleResumeUpload={handleResumeUpload}
           />
         )}
 

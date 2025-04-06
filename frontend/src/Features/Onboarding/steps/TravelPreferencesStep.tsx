@@ -1,8 +1,8 @@
-
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/Shared/components/ui/button";
 import { Checkbox } from "@/Shared/components/ui/checkbox";
 import { TravelPreferencesValues } from "../useStaffOnboardingForm";
+import { useNavigate } from 'react-router-dom';
 import { 
   Form, 
   FormControl, 
@@ -26,6 +26,9 @@ interface TravelPreferencesStepProps {
 }
 
 const TravelPreferencesStep = ({ form, onPrevious, onSubmit }: TravelPreferencesStepProps) => {
+  const navigate = useNavigate();
+  const travelNationally = form.watch("travelNationally");
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -39,7 +42,7 @@ const TravelPreferencesStep = ({ form, onPrevious, onSubmit }: TravelPreferences
             <div className="grid grid-cols-2 gap-4">
               <Button
                 type="button"
-                variant={form.getValues("travelNationally") ? "default" : "outline"}
+                variant={travelNationally ? "default" : "outline"}
                 onClick={() => form.setValue("travelNationally", true)}
                 className="w-full"
               >
@@ -47,7 +50,7 @@ const TravelPreferencesStep = ({ form, onPrevious, onSubmit }: TravelPreferences
               </Button>
               <Button
                 type="button"
-                variant={!form.getValues("travelNationally") ? "default" : "outline"}
+                variant={!travelNationally ? "default" : "outline"}
                 onClick={() => form.setValue("travelNationally", false)}
                 className="w-full"
               >
@@ -67,7 +70,7 @@ const TravelPreferencesStep = ({ form, onPrevious, onSubmit }: TravelPreferences
                   <SelectTrigger>
                     <SelectValue placeholder="Select travel duration" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-36">
                     <SelectItem value="up_to_1_month">Up to 1 Month</SelectItem>
                     <SelectItem value="up_to_3_months">Up to 3 Months or Less</SelectItem>
                     <SelectItem value="up_to_6_months">Up to 6 Months</SelectItem>
@@ -132,7 +135,10 @@ const TravelPreferencesStep = ({ form, onPrevious, onSubmit }: TravelPreferences
           >
             Previous
           </Button>
-          <Button type="submit" className="flex-1">
+          <Button 
+            type="submit" 
+            className="flex-1"
+          >
             Save Profile
           </Button>
         </div>

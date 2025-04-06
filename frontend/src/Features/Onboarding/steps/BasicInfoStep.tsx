@@ -1,4 +1,3 @@
-
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/Shared/components/ui/button";
 import { Input } from "@/Shared/components/ui/input";
@@ -53,6 +52,24 @@ const BasicInfoStep = ({ form, onNext }: BasicInfoStepProps) => {
               <FormLabel>Home Address</FormLabel>
               <FormControl>
                 <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone Number</FormLabel>
+              <FormControl>
+                <Input 
+                  type="tel" 
+                  placeholder="'"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -120,51 +137,55 @@ const BasicInfoStep = ({ form, onNext }: BasicInfoStepProps) => {
           )}
         />
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="heightFeet"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Height (Feet)</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Feet" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 8 }, (_, i) => i + 4).map((feet) => (
-                      <SelectItem key={feet} value={feet.toString()}>
-                        {feet}'
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="heightInches"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Height (Inches)</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Inches" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 12 }, (_, i) => (
-                      <SelectItem key={i} value={i.toString()}>
-                        {i}"
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <div className="grid grid-cols-2 gap-4" style={{ position: 'relative', zIndex: 50 }}>
+          <div style={{ position: 'relative', zIndex: 40 }}>
+            <FormField
+              control={form.control}
+              name="heightFeet"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Height (Feet)</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Feet" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 8 }, (_, i) => i + 4).map((feet) => (
+                        <SelectItem key={feet} value={feet.toString()}>
+                          {feet}'
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div style={{ position: 'relative', zIndex: 30 }}>
+            <FormField
+              control={form.control}
+              name="heightInches"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Height (Inches)</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Inches" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 12 }, (_, i) => (
+                        <SelectItem key={i} value={i.toString()}>
+                          {i}"
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
 
         <FormField

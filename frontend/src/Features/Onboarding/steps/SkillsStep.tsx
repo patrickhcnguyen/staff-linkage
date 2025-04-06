@@ -1,4 +1,3 @@
-
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/Shared/components/ui/button";
 import { Checkbox } from "@/Shared/components/ui/checkbox";
@@ -13,6 +12,8 @@ interface SkillsStepProps {
 }
 
 const SkillsStep = ({ form, onPrevious, onNext }: SkillsStepProps) => {
+  const selectedSkills = form.watch('skills');
+
   return (
     <Form {...form}>
       <form className="space-y-6">
@@ -34,6 +35,7 @@ const SkillsStep = ({ form, onPrevious, onNext }: SkillsStepProps) => {
                       <Checkbox
                         id={skill}
                         className="mt-1"
+                        checked={selectedSkills.includes(skill)}
                         onCheckedChange={(checked) => {
                           const currentSkills = form.getValues("skills");
                           if (checked) {
