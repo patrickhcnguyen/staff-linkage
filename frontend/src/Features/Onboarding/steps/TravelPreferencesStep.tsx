@@ -2,6 +2,7 @@ import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/Shared/components/ui/button";
 import { Checkbox } from "@/Shared/components/ui/checkbox";
 import { TravelPreferencesValues } from "../useStaffOnboardingForm";
+import { useNavigate } from 'react-router-dom';
 import { 
   Form, 
   FormControl, 
@@ -17,9 +18,6 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/Shared/components/ui/select";
-import { useNavigate } from 'react-router-dom';
-
-const navigate = useNavigate();
 
 interface TravelPreferencesStepProps {
   form: UseFormReturn<TravelPreferencesValues>;
@@ -28,6 +26,7 @@ interface TravelPreferencesStepProps {
 }
 
 const TravelPreferencesStep = ({ form, onPrevious, onSubmit }: TravelPreferencesStepProps) => {
+  const navigate = useNavigate();
   const travelNationally = form.watch("travelNationally");
 
   return (
