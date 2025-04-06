@@ -22,39 +22,7 @@ import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import '@/styles/features/map/mapbox-geocoder.css';
-
-interface Certification {
-  name: string;
-  type: string;
-  isEditing: boolean;
-  image?: string;
-}
-
-interface Address {
-  street?: string;
-  city: string;
-  state: string;
-  zipCode?: string;
-  coordinates: [number, number];
-  fullAddress?: string;
-}
-
-interface ContactInfo {
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
-  yearsInIndustry: string;
-  rating: number;
-  gender: "male" | "female" | "other" | "prefer-not-to-say";
-}
-
-interface SocialMedia {
-  facebook: string;
-  twitter: string;
-  instagram: string;
-  linkedin: string;
-}
+import { supabase } from '@/lib/supabase';
 
 const skillsCategories = [
   {
@@ -205,36 +173,47 @@ const EditProfile = () => {
   const geocoderContainerRef = useRef<HTMLDivElement>(null);
   const geocoderRef = useRef<any>(null);
   const [loading, setLoading] = useState(true);
-  const [profileImage, setProfileImage] = useState("/placeholder.svg");
-  const [galleryImages, setGalleryImages] = useState<string[]>(Array(9).fill(""));
-  const [isEditingInfo, setIsEditingInfo] = useState(false);
-  const [contactInfo, setContactInfo] = useState<ContactInfo>({
-    name: "",
+  const [profile, setProfile] = useState<UserProfile>({
+    id: "",
+    user_id: "",
+    first_name: "",
+    last_name: "",
+    avatar_url: "/placeholder.svg",
     email: "",
     phone: "",
-    role: "",
-    yearsInIndustry: "0",
+    bio: "",
+    address: "",
+    skills: [],
+    experience: [],
+    education: [],
+    created_at: "",
+    updated_at: "",
     rating: 0,
-    gender: "prefer-not-to-say" 
-  });
-  const [skills, setSkills] = useState<string[]>([]);
-  const [isSkillsDialogOpen, setIsSkillsDialogOpen] = useState(false);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [certifications, setCertifications] = useState<Certification[]>([]);
-  const [address, setAddress] = useState<Address>({
-    street: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    coordinates: [-118.2437, 34.0522],
-    fullAddress: ""
-  });
-  const [socialMedia, setSocialMedia] = useState<SocialMedia>({
+    experience_years: 0,
+    experience_months: 0,
+    height_feet: 0,
+    height_inches: 0,
+    birth_date: new Date(),
+    role: "",
+    gender: "prefer-not-to-say",
+    certifications: [],
     facebook: "",
     twitter: "",
     instagram: "",
-    linkedin: ""
+    linkedin: "",
+    gallery_images: [],
+    resume_url: "",
+    resume_name: "",
+    positions: [],
+    jobs_count: 0,
+    reviews_count: 0
   });
+  const [profileImage, setProfileImage] = useState("/placeholder.svg");
+  const [galleryImages, setGalleryImages] = useState<string[]>(Array(9).fill(""));
+  const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [skills, setSkills] = useState<string[]>([]);
+  const [isSkillsDialogOpen, setIsSkillsDialogOpen] = useState(false);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [jobsCount, setJobsCount] = useState(0);
   const [reviewsCount, setReviewsCount] = useState(0);
   const [resume, setResume] = useState<{ name: string; url: string } | null>(null);
@@ -242,6 +221,7 @@ const EditProfile = () => {
   const [isPositionsDialogOpen, setIsPositionsDialogOpen] = useState(false);
   const [isGalleryDialogOpen, setIsGalleryDialogOpen] = useState(false);
   const [isEditingGallery, setIsEditingGallery] = useState(false);
+  const [editingCertIndex, setEditingCertIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -252,84 +232,35 @@ const EditProfile = () => {
       
       setLoading(true);
       try {
-        const profile = await getUserProfile(user.id);
+        const { data: profileData, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) throw error;
         
-        if (profile) {
-          setContactInfo({
-            name: profile.full_name || "",
-            email: profile.email || "",
-            phone: profile.phone || "",
-            role: profile.role || "",
-            yearsInIndustry: profile.years_experience?.toString() || "0",
-            rating: profile.rating || 0,
-            gender: profile.gender || "prefer-not-to-say"
-          });
+        if (profileData) {
+          setProfile(profileData as UserProfile);
+          setSkills(profileData.skills || []);
+          setGalleryImages(profileData.gallery_images || Array(9).fill(""));
           
-          if (profile.avatar_url) {
-            setProfileImage(profile.avatar_url);
-          }
-          
-          if (profile.skills && Array.isArray(profile.skills)) {
-            setSkills(profile.skills);
-          }
-          
-          if (profile.certifications && Array.isArray(profile.certifications)) {
-            setCertifications(profile.certifications.map(cert => ({
-              name: cert.name,
-              type: cert.type || "certification",
-              isEditing: false,
-              image: cert.image
-            })));
-          }
-          
-          if (profile.address) {
-            setAddress({
-              street: profile.address.street || "",
-              city: profile.address.city || "",
-              state: profile.address.state || "",
-              zipCode: profile.address.zipCode || "",
-              coordinates: profile.address.coordinates || [-118.2437, 34.0522],
-              fullAddress: profile.address.fullAddress || ""
-            });
-          }
-          
-          if (profile.social_media) {
-            setSocialMedia({
-              facebook: profile.social_media.facebook || "",
-              twitter: profile.social_media.twitter || "",
-              instagram: profile.social_media.instagram || "",
-              linkedin: profile.social_media.linkedin || ""
-            });
-          }
-          
-          if (profile.gallery_images && Array.isArray(profile.gallery_images)) {
-            const images = [...profile.gallery_images];
-            while (images.length < 9) {
-              images.push("");
-            }
-            setGalleryImages(images);
-          }
-          
-          if (profile.resume_url) {
+          if (profileData.resume_url) {
             setResume({
-              name: profile.resume_name || "resume.pdf",
-              url: profile.resume_url
+              name: profileData.resume_name || "resume.pdf",
+              url: profileData.resume_url
             });
           }
           
-          if (profile.positions && Array.isArray(profile.positions)) {
-            setSelectedPositions(profile.positions);
-          }
-          
-          setJobsCount(profile.jobs_count || 0);
-          setReviewsCount(profile.reviews_count || 0);
+          setSelectedPositions(profileData.positions || []);
+          setJobsCount(profileData.jobs_count || 0);
+          setReviewsCount(profileData.reviews_count || 0);
         }
       } catch (error) {
         console.error("Error loading profile:", error);
         toast({
           title: "Error",
-          description: "Failed to load profile data",
-          variant: "destructive"
+          description: "Failed to load profile data"
         });
       } finally {
         setLoading(false);
@@ -337,7 +268,7 @@ const EditProfile = () => {
     };
     
     loadUserProfile();
-  }, [user, navigate, toast]);
+  }, [user, navigate]);
 
   useEffect(() => {
     if (!geocoderRef.current && geocoderContainerRef.current) {
@@ -368,20 +299,14 @@ const EditProfile = () => {
         const state = stateZip[0];
         const zipCode = stateZip[1];
 
-        setAddress({
-          street,
-          city,
-          state,
-          zipCode,
-          coordinates: center,
-          fullAddress: place_name
-        });
+        setProfile(prev => prev ? {
+          ...prev,
+          address: street
+        } : null);
       });
 
-      if (address.fullAddress) {
-        geocoder.setInput(address.fullAddress);
-      } else if (address.street) {
-        geocoder.setInput(`${address.street}, ${address.city}, ${address.state} ${address.zipCode}`);
+      if (profile?.address) {
+        geocoder.setInput(profile.address);
       }
 
       geocoderRef.current = geocoder;
@@ -398,14 +323,26 @@ const EditProfile = () => {
     const file = event.target.files?.[0];
     if (file && user) {
       try {
-        const imageUrl = await uploadAvatar(user.id, file);
-        if (imageUrl) {
-          setProfileImage(imageUrl);
-          toast({
-            title: "Success",
-            description: "Profile image updated successfully"
-          });
-        }
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `avatars/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('user-content')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+          .from('user-content')
+          .getPublicUrl(filePath);
+
+        setProfileImage(data.publicUrl);
+        
+        toast({
+          title: "Success",
+          description: "Profile image updated successfully"
+        });
       } catch (error) {
         console.error("Error uploading avatar:", error);
         toast({
@@ -444,66 +381,132 @@ const EditProfile = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const newCertifications = [...certifications];
+        const newCertifications = [...profile?.certifications || []];
         newCertifications[index] = { 
           ...newCertifications[index], 
           image: reader.result as string 
         };
-        setCertifications(newCertifications);
+        setProfile(prev => prev ? {
+          ...prev,
+          certifications: newCertifications
+        } : null);
       };
       reader.readAsDataURL(file);
     }
   };
 
   const addCertification = () => {
-    setCertifications([...certifications, { 
-      name: "New Certification", 
-      type: "certification", 
-      isEditing: true 
-    }]);
+    setProfile(prev => prev ? {
+      ...prev,
+      certifications: [...prev.certifications, { 
+        name: "New Certification", 
+        type: "certification", 
+        isEditing: true 
+      }]
+    } : null);
   };
 
   const updateCertification = (index: number, newName: string) => {
-    const newCertifications = [...certifications];
-    newCertifications[index] = { 
-      ...newCertifications[index], 
-      name: newName, 
-      isEditing: false 
-    };
-    setCertifications(newCertifications);
+    setProfile(prev => prev ? {
+      ...prev,
+      certifications: prev.certifications.map((cert, i) =>
+        i === index ? { ...cert, name: newName, isEditing: false } : cert
+      )
+    } : null);
   };
 
   const toggleEdit = (index: number) => {
-    const newCertifications = [...certifications];
-    newCertifications[index] = { 
-      ...newCertifications[index], 
-      isEditing: !newCertifications[index].isEditing 
-    };
-    setCertifications(newCertifications);
+    setEditingCertIndex(editingCertIndex === index ? null : index);
   };
 
-  const handleSkillsSubmit = () => {
-    setSkills([...new Set([...skills, ...selectedSkills])]);
-    setSelectedSkills([]);
-    setIsSkillsDialogOpen(false);
+  const handleSkillsSubmit = async () => {
+    if (!user) return;
+    
+    const updatedSkills = [...new Set([...skills, ...selectedSkills])];
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ skills: updatedSkills })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setSkills(updatedSkills);
+      setSelectedSkills([]);
+      setIsSkillsDialogOpen(false);
+
+      toast({
+        title: "Success",
+        description: "Skills updated successfully"
+      });
+    } catch (error) {
+      console.error("Error updating skills:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update skills",
+        variant: "destructive"
+      });
+    }
   };
 
-  const removeSkill = (skillToRemove: string) => {
-    setSkills(skills.filter(skill => skill !== skillToRemove));
+  const removeSkill = async (skillToRemove: string) => {
+    if (!user) return;
+    
+    const updatedSkills = skills.filter(skill => skill !== skillToRemove);
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ skills: updatedSkills })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setSkills(updatedSkills);
+      
+      toast({
+        title: "Success",
+        description: "Skill removed successfully"
+      });
+    } catch (error) {
+      console.error("Error removing skill:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove skill",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleContactInfoChange = (field: keyof typeof contactInfo, value: string) => {
-    setContactInfo(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+  const handleProfileUpdate = async (field: keyof UserProfile, value: any) => {
+    if (!user) return;
 
-  const handleAddressChange = (field: keyof Address, value: string | [number, number]) => {
-    setAddress(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ [field]: value })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setProfile(prev => ({
+        ...prev,
+        [field]: value
+      }));
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully"
+      });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive"
+      });
+    }
   };
 
   const existingPhotos = galleryImages.filter(img => img !== "");
@@ -517,11 +520,34 @@ const EditProfile = () => {
     setGalleryImages(newGalleryImages);
   };
 
-  const handleSocialMediaChange = (platform: keyof typeof socialMedia, value: string) => {
-    setSocialMedia(prev => ({
-      ...prev,
-      [platform]: value
-    }));
+  const handleSocialMediaChange = async (platform: 'facebook' | 'instagram' | 'linkedin' | 'twitter', value: string) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ [platform]: value })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setProfile(prev => prev ? {
+        ...prev,
+        [platform]: value
+      } : null);
+
+      toast({
+        title: "Success",
+        description: `${platform} updated successfully`
+      });
+    } catch (error) {
+      console.error(`Error updating ${platform}:`, error);
+      toast({
+        title: "Error",
+        description: `Failed to update ${platform}`,
+        variant: "destructive"
+      });
+    }
   };
 
   const handleResumeUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -560,36 +586,40 @@ const EditProfile = () => {
     if (!user) return;
     
     try {
-      const profileUpdate: Partial<UserProfile> = {
-        full_name: contactInfo.name,
-        email: contactInfo.email,
-        phone: contactInfo.phone,
-        avatar_url: profileImage !== "/placeholder.svg" ? profileImage : undefined,
-        skills: skills,
-        certifications: certifications.map(cert => ({
-          name: cert.name,
-          type: cert.type,
-          image: cert.image
-        })),
-        address: {
-          street: address.street,
-          city: address.city,
-          state: address.state,
-          zipCode: address.zipCode,
-          coordinates: address.coordinates,
-          fullAddress: address.fullAddress
-        },
-        social_media: socialMedia,
-        positions: selectedPositions,
-        role: contactInfo.role,
-        years_experience: parseInt(contactInfo.yearsInIndustry) || 0,
-        gender: contactInfo.gender,
-        gallery_images: galleryImages.filter(img => img !== ""),
-        resume_url: resume?.url,
-        resume_name: resume?.name
-      };
-      
-      await updateUserProfile(user.id, profileUpdate);
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          email: profile.email,
+          phone: profile.phone,
+          bio: profile.bio,
+          address: profile.address,
+          avatar_url: profile.avatar_url,
+          skills: profile.skills,
+          experience: profile.experience,
+          education: profile.education,
+          rating: profile.rating,
+          experience_years: profile.experience_years,
+          experience_months: profile.experience_months,
+          height_feet: profile.height_feet,
+          height_inches: profile.height_inches,
+          birth_date: profile.birth_date,
+          role: profile.role,
+          gender: profile.gender,
+          certifications: profile.certifications,
+          facebook: profile.facebook,
+          twitter: profile.twitter,
+          instagram: profile.instagram,
+          linkedin: profile.linkedin,
+          gallery_images: profile.gallery_images,
+          resume_url: profile.resume_url,
+          resume_name: profile.resume_name,
+          positions: profile.positions
+        })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
       
       toast({
         title: "Success",
@@ -601,24 +631,23 @@ const EditProfile = () => {
       console.error("Error saving profile:", error);
       toast({
         title: "Error",
-        description: "Failed to save profile changes",
-        variant: "destructive"
+        description: "Failed to save profile changes"
       });
     }
   };
 
   const profileItems = {
     avatar: !!profileImage && profileImage !== "/placeholder.svg",
-    name: !!contactInfo.name,
-    role: !!contactInfo.role,
+    name: !!profile?.first_name && !!profile?.last_name,
+    role: !!profile?.role,
     bio: false,
     skills: skills.length > 0,
-    contact: !!contactInfo.email && !!contactInfo.phone,
-    location: !!address.city && !!address.state,
-    certifications: certifications.length > 0,
+    contact: !!profile?.email && !!profile?.phone,
+    location: !!profile?.address,
+    certifications: profile?.certifications?.length > 0,
     gallery: galleryImages.some(img => img !== ""),
     resume: !!resume,
-    social: Object.values(socialMedia).some(url => !!url),
+    social: !!(profile?.facebook || profile?.instagram || profile?.linkedin),
   };
 
   const completedItems = Object.values(profileItems).filter(Boolean).length;
@@ -675,66 +704,61 @@ const EditProfile = () => {
 
                   <div className="w-full space-y-4">
                     <div>
-                      <h3 className="text-2xl font-semibold text-center mb-1">{contactInfo.name}</h3>
+                      <h3 className="text-2xl font-semibold text-center mb-1">{profile?.first_name} {profile?.last_name}</h3>
                       <div className="flex items-center justify-center gap-0.5 mb-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
                             key={star}
                             className={`h-4 w-4 ${
-                              star <= contactInfo.rating
+                              star <= profile?.rating
                                 ? "text-yellow-400 fill-yellow-400"
-                                : star <= Math.ceil(contactInfo.rating)
+                                : star <= Math.ceil(profile?.rating)
                                 ? "text-yellow-400 fill-yellow-400 opacity-50"
                                 : "text-gray-300"
                             }`}
                           />
                         ))}
                         <span className="text-sm text-muted-foreground ml-1">
-                          ({contactInfo.rating})
+                          ({profile?.rating})
                         </span>
                       </div>
-                      <p className="text-muted-foreground text-center">{contactInfo.role}</p>
+                      <p className="text-muted-foreground text-center">{profile?.role}</p>
                       <p className="text-sm text-muted-foreground text-center mt-1">
-                        {contactInfo.yearsInIndustry} years in industry
+                        {profile?.experience_years} years in industry
                       </p>
                       
                       <div className="flex items-center justify-center gap-1 mt-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">{address.city}, {address.state}</span>
+                        <span className="text-sm text-muted-foreground">{profile?.address}</span>
                       </div>
 
                       <div className="flex justify-center gap-4 mt-2">
-                        {Object.entries(socialMedia).map(([platform, url]) => {
-                          const Icon = {
-                            facebook: Facebook,
-                            twitter: Twitter,
-                            instagram: Instagram,
-                            linkedin: Linkedin
-                          }[platform];
-                          
-                          return url ? (
-                            <a 
-                              key={platform}
-                              href={`https://${url}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-muted-foreground hover:text-foreground transition-colors"
-                            >
-                              <Icon className="h-5 w-5" />
-                            </a>
-                          ) : null;
-                        })}
+                        {[
+                          { platform: 'facebook', url: profile?.facebook, Icon: Facebook },
+                          { platform: 'instagram', url: profile?.instagram, Icon: Instagram },
+                          { platform: 'linkedin', url: profile?.linkedin, Icon: Linkedin }
+                        ].map(({ platform, url, Icon }) => url ? (
+                          <a 
+                            key={platform}
+                            href={`https://${url}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            <Icon className="h-5 w-5" />
+                          </a>
+                        ) : null)}
                       </div>
                     </div>
 
                     <div className="pt-4 space-y-2">
                       <div>
                         <Label className="text-muted-foreground text-sm">Email</Label>
-                        <p className="text-sm">{contactInfo.email}</p>
+                        <p className="text-sm">{profile?.email}</p>
                       </div>
                       <div>
                         <Label className="text-muted-foreground text-sm">Phone</Label>
-                        <p className="text-sm">{contactInfo.phone}</p>
+                        <p className="text-sm">{profile?.phone}</p>
                       </div>
                     </div>
                   </div>
@@ -812,7 +836,7 @@ const EditProfile = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col items-center justify-center py-4">
-                  <span className="text-4xl font-bold text-primary">{certifications.length}</span>
+                  <span className="text-4xl font-bold text-primary">{profile?.certifications?.length}</span>
                   <span className="text-sm text-muted-foreground mt-1">Total Certifications</span>
                 </div>
               </CardContent>
@@ -858,7 +882,7 @@ const EditProfile = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {certifications.map((cert, index) => (
+                {profile?.certifications?.map((cert, index) => (
                   <div key={index} className="flex flex-col items-center p-4 border rounded-lg relative group">
                     <div className="relative w-16 h-16 mb-2">
                       {cert.image ? (
@@ -886,24 +910,18 @@ const EditProfile = () => {
                         />
                       </label>
                     </div>
-                    {cert.isEditing ? (
+                    {editingCertIndex === index ? (
                       <Input
                         value={cert.name}
                         onChange={(e) => updateCertification(index, e.target.value)}
-                        onBlur={() => toggleEdit(index)}
+                        onBlur={() => setEditingCertIndex(null)}
                         autoFocus
                         className="text-sm text-center"
                       />
                     ) : (
-                      <>
+                      <div onClick={() => toggleEdit(index)}>
                         <span className="text-sm font-medium text-center">{cert.name}</span>
-                        <button 
-                          onClick={() => toggleEdit(index)}
-                          className="absolute top-2 right-2 p-1 rounded-full bg-secondary opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                      </>
+                      </div>
                     )}
                   </div>
                 ))}
@@ -1084,39 +1102,79 @@ const EditProfile = () => {
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="first_name">First Name</Label>
                 <Input
-                  id="name"
-                  value={contactInfo.name}
-                  onChange={(e) => handleContactInfoChange('name', e.target.value)}
+                  id="first_name"
+                  value={profile?.first_name}
+                  onChange={(e) => handleProfileUpdate('first_name', e.target.value)}
                 />
               </div>
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="last_name">Last Name</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  value={contactInfo.email}
-                  onChange={(e) => handleContactInfoChange('email', e.target.value)}
+                  id="last_name"
+                  value={profile?.last_name}
+                  onChange={(e) => handleProfileUpdate('last_name', e.target.value)}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={profile?.email}
+                  onChange={(e) => handleProfileUpdate('email', e.target.value)}
+                />
+              </div>
+              <div>
                 <Label htmlFor="phone">Phone</Label>
                 <Input
                   id="phone"
                   type="tel"
-                  value={contactInfo.phone}
-                  onChange={(e) => handleContactInfoChange('phone', e.target.value)}
+                  value={profile?.phone}
+                  onChange={(e) => handleProfileUpdate('phone', e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="role">Role</Label>
+                <Input
+                  id="role"
+                  value={profile?.role}
+                  onChange={(e) => handleProfileUpdate('role', e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="experience_years">Years in Industry</Label>
+                <Input
+                  id="experience_years"
+                  type="number"
+                  value={profile?.experience_years}
+                  onChange={(e) => handleProfileUpdate('experience_years', parseInt(e.target.value))}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="experience_months">Months in Industry</Label>
+                <Input
+                  id="experience_months"
+                  type="number"
+                  value={profile?.experience_months}
+                  onChange={(e) => handleProfileUpdate('experience_months', parseInt(e.target.value))}
                 />
               </div>
               <div>
                 <Label htmlFor="gender">Gender</Label>
                 <Select
-                  value={contactInfo.gender}
-                  onValueChange={(value) => handleContactInfoChange('gender', value)}
+                  value={profile?.gender}
+                  onValueChange={(value) => handleProfileUpdate('gender', value)}
                 >
                   <SelectTrigger id="gender">
                     <SelectValue placeholder="Select gender" />
@@ -1128,26 +1186,6 @@ const EditProfile = () => {
                     <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="role">Role</Label>
-                <Input
-                  id="role"
-                  value={contactInfo.role}
-                  onChange={(e) => handleContactInfoChange('role', e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="yearsInIndustry">Years in Industry</Label>
-                <Input
-                  id="yearsInIndustry"
-                  type="number"
-                  value={contactInfo.yearsInIndustry}
-                  onChange={(e) => handleContactInfoChange('yearsInIndustry', e.target.value)}
-                />
               </div>
             </div>
 
@@ -1179,13 +1217,10 @@ const EditProfile = () => {
                     <MapPin className="h-3 w-3" />
                     Current Address:
                   </p>
-                  {address.street ? (
+                  {profile?.address ? (
                     <>
                       <p className="text-sm">
-                        {address.street}
-                      </p>
-                      <p className="text-sm">
-                        {address.city}, {address.state} {address.zipCode}
+                        {profile.address}
                       </p>
                     </>
                   ) : (
@@ -1212,7 +1247,7 @@ const EditProfile = () => {
                   </div>
                   <Input
                     id="facebook"
-                    value={socialMedia.facebook}
+                    value={profile?.facebook}
                     onChange={(e) => handleSocialMediaChange('facebook', e.target.value)}
                     placeholder="facebook.com/username"
                   />
@@ -1224,7 +1259,7 @@ const EditProfile = () => {
                   </div>
                   <Input
                     id="twitter"
-                    value={socialMedia.twitter}
+                    value={profile?.twitter}
                     onChange={(e) => handleSocialMediaChange('twitter', e.target.value)}
                     placeholder="twitter.com/username"
                   />
@@ -1236,7 +1271,7 @@ const EditProfile = () => {
                   </div>
                   <Input
                     id="instagram"
-                    value={socialMedia.instagram}
+                    value={profile?.instagram}
                     onChange={(e) => handleSocialMediaChange('instagram', e.target.value)}
                     placeholder="instagram.com/username"
                   />
@@ -1248,7 +1283,7 @@ const EditProfile = () => {
                   </div>
                   <Input
                     id="linkedin"
-                    value={socialMedia.linkedin}
+                    value={profile?.linkedin}
                     onChange={(e) => handleSocialMediaChange('linkedin', e.target.value)}
                     placeholder="linkedin.com/in/username"
                   />
