@@ -44,14 +44,6 @@ const BasicInfoStep = ({ form, onNext, currentStep, totalSteps, isSubmitting = f
 
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Complete Company Profile</h1>
-        <p className="text-muted-foreground mb-6">
-          Welcome to EventStaff.com! Let's get your company set up to find the best event staff.
-        </p>
-        <Progress value={progress} className="w-full h-2 bg-secondary" />
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
         <div className="flex items-start space-x-4 p-4 rounded-lg bg-secondary/50">
           <Building className="w-8 h-8 text-primary" />

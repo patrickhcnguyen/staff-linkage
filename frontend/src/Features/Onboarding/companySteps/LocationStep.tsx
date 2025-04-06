@@ -18,10 +18,9 @@ const LocationStep = ({ form, onNext, onPrevious, currentStep, totalSteps, isSub
   return (
     <div>
       <Form {...form}>
-        <form onSubmit={(e) => {
-          e.preventDefault();
+        <form onSubmit={form.handleSubmit(() => {
           onNext();
-        }} className="space-y-6">
+        })} className="space-y-6">
           <div className="space-y-4">
             {/* Address Fields */}
             <div className="grid grid-cols-2 gap-4">
@@ -56,12 +55,12 @@ const LocationStep = ({ form, onNext, onPrevious, currentStep, totalSteps, isSub
 
             <FormField
               control={form.control}
-              name="zipCode"
+              name="street"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Zip Code</FormLabel>
+                  <FormLabel>Street </FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter zip code" />
+                    <Input {...field} placeholder="Please enter your company's street" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -77,7 +76,21 @@ const LocationStep = ({ form, onNext, onPrevious, currentStep, totalSteps, isSub
                   <FormItem>
                     <FormLabel>Date Founded</FormLabel>
                     <FormControl>
-                      <Input {...field} type="date" />
+                      <Input {...field} type="date" placeholder="Select founding date" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="zipCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Zip code</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter zip code" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

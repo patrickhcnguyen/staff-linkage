@@ -28,10 +28,16 @@ const Navigation = () => {
         if (role === 'company') {
           setUserRole("company");
           
+          // Don't check for company profile if we're already on the onboarding page
+          if (window.location.pathname === '/company-onboarding') {
+            setLoading(false);
+            return;
+          }
+          
           const { data: companyData, error: companyError } = await supabase
             .from('companies')
             .select('id')
-            .eq('user_id', user.id)
+            .eq('company_id', user.id)
             .single();
           
           if (companyError && companyError.code !== 'PGRST116') {
@@ -75,6 +81,16 @@ const Navigation = () => {
       navigate('/staff-onboarding');
     }
   }, [companyOnboardingNeeded, staffOnboardingNeeded, loading, navigate]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    // Clear any stored states
+    setUserRole(null);
+    setCompanyOnboardingNeeded(false);
+    setStaffOnboardingNeeded(false);
+    // Force navigation to home
+    window.location.href = '/';
+  };
 
   const renderLinks = () => {
     const commonLinks = [
@@ -165,7 +181,7 @@ const Navigation = () => {
                 <Link to={userRole === "company" ? "/edit-company-profile" : "/edit-profile"}>
                   <Button variant="outline">Edit Profile</Button>
                 </Link>
-                <Button variant="ghost" onClick={() => signOut()}>
+                <Button variant="ghost" onClick={handleSignOut}>
                   Sign Out
                 </Button>
               </>
