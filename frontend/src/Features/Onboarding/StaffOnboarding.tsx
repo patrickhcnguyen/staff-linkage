@@ -42,13 +42,11 @@ const StaffOnboardingPage = () => {
       if (authError) throw authError;
       if (!user) throw new Error('Not authenticated');
 
-      console.log('Authenticated user ID:', user.id);
-
       const basicInfo = basicInfoForm.getValues();
       const socialMediaValues = socialMediaForm.getValues();
+      const skillsValues = skillsForm.getValues();
       const travelPrefs = travelPreferencesForm.getValues();
 
-      // update user profile
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
@@ -56,17 +54,17 @@ const StaffOnboardingPage = () => {
           last_name: basicInfo.lastName,
           address: basicInfo.address,
           phone: basicInfo.phone,
-          experience_years: parseInt(basicInfo.experienceYears),
-          experience_months: parseInt(basicInfo.experienceMonths),
+          experience_years: Number(basicInfo.experienceYears),
+          experience_months: Number(basicInfo.experienceMonths),
           gender: basicInfo.gender,
           birth_date: basicInfo.birthDate,
-          height_feet: parseInt(basicInfo.heightFeet),
-          height_inches: parseInt(basicInfo.heightInches),
-          facebook_url: socialMediaValues.facebook || null,
-          instagram_url: socialMediaValues.instagram || null,
-          twitter_url: socialMediaValues.twitter || null,
-          linkedin_url: socialMediaValues.linkedin || null,
-          skills: skillsForm.getValues().skills,
+          height_feet: Number(basicInfo.heightFeet),
+          height_inches: Number(basicInfo.heightInches),
+          facebook_url: socialMediaValues.facebook,
+          instagram_url: socialMediaValues.instagram,
+          twitter_url: socialMediaValues.twitter,
+          linkedin_url: socialMediaValues.linkedin,
+          skills: skillsValues.skills,
           travel_nationally: travelPrefs.travelNationally,
           travel_duration: travelPrefs.travelDuration,
           notifications_enabled: travelPrefs.notifications,
@@ -76,16 +74,21 @@ const StaffOnboardingPage = () => {
         })
         .eq('user_id', user.id);
 
-      if (updateError) {
-        console.error('Update error:', updateError);
-        throw updateError;
-      }
+      if (updateError) throw updateError;
 
-      toast.success("Profile updated successfully!");
-      navigate("/dashboard");
+      toast.success("Profile updated successfully!", {
+        duration: 3000,
+        position: "top-center"
+      });
+      
+      window.location.href = "/dashboard";
+
     } catch (error: any) {
       console.error("Error saving profile:", error);
-      toast.error(error.message || "Failed to save profile. Please try again.");
+      toast.error("Failed to save profile. Please try again.", {
+        duration: 3000,
+        position: "top-center"
+      });
     } finally {
       setIsSubmitting(false);
     }
