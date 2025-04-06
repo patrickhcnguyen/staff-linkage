@@ -18,10 +18,9 @@ const CompanyOnboarding = () => {
   const {
     basicInfoForm,
     socialMediaForm,
-    // Add other form hooks here as you create more steps
   } = useCompanyOnboardingForm();
 
-  // Redirect if user is not logged in
+  // redirect if not auth
   useEffect(() => {
     if (!user) {
       toast("Authentication required", {
@@ -32,20 +31,11 @@ const CompanyOnboarding = () => {
   }, [user, navigate]);
 
   const onSubmit = async () => {
-    if (!user) {
-      toast("Authentication required", {
-        description: "Please sign in to continue"
-      });
-      navigate('/login');
-      return;
-    }
-
     try {
       setIsSubmitting(true);
       const basicInfo = basicInfoForm.getValues();
       const socialMedia = socialMediaForm.getValues();
-      
-      // Upload logo to Supabase Storage if available
+        
       let logoUrl = "/placeholder.svg";
       if (basicInfo.companyPhoto && basicInfo.companyPhoto[0]) {
         logoUrl = await uploadLogo(basicInfo.companyPhoto[0]);
@@ -60,8 +50,7 @@ const CompanyOnboarding = () => {
       // Create company profile in Supabase
       const { error } = await supabase
         .from('companies')
-        .insert([{
-          user_id: user.id,
+        .update({
           name: basicInfo.name,
           type: basicInfo.type,
           email: basicInfo.email,
@@ -79,7 +68,8 @@ const CompanyOnboarding = () => {
           instagram: socialMedia.instagram,
           twitter: socialMedia.twitter,
           linkedin: socialMedia.linkedin
-        }])
+        })
+        .eq('company_id', user.id)
         .select()
         .single();
       
@@ -89,7 +79,8 @@ const CompanyOnboarding = () => {
         description: "Company profile created successfully!"
       });
       
-      navigate("/company-dashboard");
+      window.location.href = "/dashboard";  // Force a full page reload and navigation
+      return; // Make sure we exit after navigation
     } catch (error) {
       console.error("Error creating company:", error);
       toast("Error", {
@@ -157,9 +148,8 @@ const CompanyOnboarding = () => {
         <Progress value={progress} className="w-full h-2 bg-secondary" />
         <div className="flex justify-between text-sm text-muted-foreground mt-2">
           <span>Basic Info</span>
-          <span>Team Details</span>
-          <span>Job Settings</span>
-          <span>Hiring Process</span>
+          <span>Location Info</span>
+          <span>Social Media</span>
         </div>
       </div>
 
@@ -177,7 +167,7 @@ const CompanyOnboarding = () => {
         {step === 2 && (
           <LocationStep 
             form={basicInfoForm} 
-            onNext={() => setStep(3)}
+            onNext={onSubmit}
             onPrevious={() => setStep(1)}
             isSubmitting={isSubmitting}
             currentStep={step}
