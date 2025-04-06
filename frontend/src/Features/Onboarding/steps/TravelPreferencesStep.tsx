@@ -138,9 +138,6 @@ const TravelPreferencesStep = ({ form, onPrevious, onSubmit }: TravelPreferences
           <Button 
             type="submit" 
             className="flex-1"
-            onClick={() => {
-              navigate('/dashboard');
-            }}
           >
             Save Profile
           </Button>
