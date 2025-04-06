@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Navigation from "@/Shared/components/Navigation";
 import Index from "@/pages/Index";
 import Dashboard from "@/pages/Dashboard";
-import EditProfile from "@/pages/EditProfile";
+import EditProfile from "@/pages/EditProfiles/Staff/EditProfile";
 import AvailableJobs from "@/pages/AvailableJobs";
 import JobDetails from "@/pages/JobDetails";
 import ViewJob from "@/pages/ViewJob";
@@ -17,7 +17,7 @@ import PostJob from "@/pages/PostJob";
 import NotFound from "@/pages/NotFound";
 
 
-import EditCompanyProfile from "@/pages/EditCompanyProfile";
+import EditCompanyProfile from "@/pages/EditProfiles/Company/EditCompanyProfile";
 import TalentDirectory from "@/pages/TalentDirectory";
 import CompanyMembership from "@/pages/CompanyMembership";
 
