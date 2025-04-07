@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { z } from "zod";
@@ -88,7 +87,6 @@ const SignIn = () => {
       const { data: signInData, error } = await signIn(values.email, values.password);
       
       if (error) {
-        // Check if this is an email verification error
         if (error.message.includes("Email not confirmed")) {
           setEmailNotVerified(true);
           setUnverifiedEmail(values.email);
@@ -100,52 +98,62 @@ const SignIn = () => {
       
       // Check user role to determine redirection
       if (signInData.user) {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('role, first_name, last_name')
-          .eq('id', signInData.user.id)
-          .single();
-          
-        if (profileData?.role === 'company') {
-          // Check if company has completed onboarding
-          const { data: companyData, error: companyError } = await supabase
-            .from('companies')
-            .select('id')
+        try {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
             .eq('user_id', signInData.user.id)
             .single();
-          
-          if (companyError && companyError.code !== 'PGRST116') {
-            console.error("Error checking company onboarding status:", companyError);
-          }
-          
-          if (!companyData) {
-            // Company hasn't completed onboarding
-            toast.success("Signed in successfully! Please complete your company profile.");
-            navigate("/company-onboarding");
+
+          if (profileError) {
+            console.error("Error fetching profile:", profileError);
+            const role = signInData.user.user_metadata?.role;
+            
+            if (role === 'company') {
+              navigate("/company-dashboard");
+            } else {
+              navigate("/staff-dashboard");
+            }
             return;
           }
-          
-          // Company has completed onboarding
-          toast.success("Signed in successfully!");
-          navigate("/company-dashboard");
-          return;
-        } else {
-          // Handle staff user
-          // Check if staff has completed onboarding (has name filled in)
-          if (!profileData.first_name || !profileData.last_name) {
-            toast.success("Signed in successfully! Please complete your profile.");
-            navigate("/staff-onboarding");
+
+          const role = signInData.user.user_metadata?.role;
+
+          if (role === 'company') {
+            const { data: companyData, error: companyError } = await supabase
+              .from('companies')
+              .select('id')
+              .eq('company_id', signInData.user.id)
+              .single();
+            
+            if (!companyData) {
+              toast.success("Signed in successfully! Please complete your company profile.");
+              navigate("/company-onboarding");
+              return;
+            }
+            
+            toast.success("Signed in successfully!");
+            navigate("/company-dashboard");
+            return;
+          } else {
+            if (!profileData?.first_name || !profileData?.last_name) {
+              toast.success("Signed in successfully! Please complete your profile.");
+              navigate("/staff-onboarding");
+              return;
+            }
+            
+            toast.success("Signed in successfully!");
+            navigate("/staff-dashboard");
             return;
           }
+        } catch (error) {
+          console.error("Error during redirection:", error);
+          // Default fallback navigation
+          navigate("/staff-dashboard");
         }
       }
-      
-      // Default redirection
-      toast.success("Signed in successfully!");
-      navigate("/dashboard");
     } catch (error: any) {
       toast.error(error.message || "Something went wrong. Please try again.");
-      // Pre-fill the reset email field with the attempted email
       setResetEmail(values.email);
     } finally {
       setIsSubmitting(false);

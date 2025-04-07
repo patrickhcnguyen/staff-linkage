@@ -62,7 +62,7 @@ function App() {
         <Route path="/talent" element={<TalentDirectory />} />
         
         {/* Staff routes */}
-        <Route path="/dashboard" element={<StaffDashboard />} />
+        <Route path="/staff-dashboard" element={<StaffDashboard />} />
         <Route path="/edit-profile" element={<EditProfile />} />
         <Route path="/jobs" element={<AvailableJobs />} />
         <Route path="/jobs/:id" element={<JobDetails />} />
