@@ -35,19 +35,13 @@ const CompanyOnboarding = () => {
       setIsSubmitting(true);
       const basicInfo = basicInfoForm.getValues();
       const socialMedia = socialMediaForm.getValues();
-        
-      let logoUrl = "/placeholder.svg";
-      if (basicInfo.companyPhoto && basicInfo.companyPhoto[0]) {
-        logoUrl = await uploadLogo(basicInfo.companyPhoto[0]);
-        if (!logoUrl) {
-          toast("Warning", {
-            description: "Could not upload logo, using default image"
-          });
-          logoUrl = "/placeholder.svg";
-        }
-      }
       
-      // Create company profile in Supabase
+      const { data: currentCompany } = await supabase
+        .from('companies')
+        .select('logo_url')
+        .eq('company_id', user.id)
+        .single();
+      
       const { error } = await supabase
         .from('companies')
         .update({
@@ -62,7 +56,7 @@ const CompanyOnboarding = () => {
           zip_code: basicInfo.zipCode,
           founded: basicInfo.founded,
           number_of_employees: basicInfo.numberOfEmployees,
-          logo_url: logoUrl,
+          logo_url: currentCompany?.logo_url,
           website: basicInfo.website,
           facebook: socialMedia.facebook,
           instagram: socialMedia.instagram,
@@ -88,50 +82,6 @@ const CompanyOnboarding = () => {
       });
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  // Helper function to upload logo to Supabase storage
-  const uploadLogo = async (file: File): Promise<string | null> => {
-    try {
-      if (!user) return null;
-      
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `company-logos/${fileName}`;
-      
-      // Create the storage bucket if it doesn't exist
-      const { data: bucketData, error: bucketError } = await supabase
-        .storage
-        .createBucket('company-content', {
-          public: true,
-          fileSizeLimit: 2097152, // 2MB
-        });
-      
-      if (bucketError && bucketError.message !== 'Bucket already exists') {
-        console.error("Error creating bucket:", bucketError);
-        return null;
-      }
-      
-      // Upload file
-      const { error: uploadError } = await supabase.storage
-        .from('company-content')
-        .upload(filePath, file);
-      
-      if (uploadError) {
-        console.error("Error uploading logo:", uploadError);
-        return null;
-      }
-      
-      // Get public URL
-      const { data } = supabase.storage
-        .from('company-content')
-        .getPublicUrl(filePath);
-      
-      return data.publicUrl;
-    } catch (error) {
-      console.error("Error in uploadLogo:", error);
-      return null;
     }
   };
 
