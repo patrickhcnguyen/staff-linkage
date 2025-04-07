@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 
@@ -94,22 +93,27 @@ export const updateUserProfile = async (userId: string, updates: Partial<UserPro
 };
 
 export const uploadAvatar = async (userId: string, file: File): Promise<string | null> => {
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${userId}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-  const filePath = `avatars/${fileName}`;
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `${userId}/${fileName}`;
 
-  const { error } = await supabase.storage
-    .from('user-content')
-    .upload(filePath, file);
+    const { error } = await supabase.storage
+      .from('staff')
+      .upload(filePath, file);
 
-  if (error) {
-    console.error('Error uploading avatar:', error);
+    if (error) {
+      console.error('Error uploading avatar:', error);
+      return null;
+    }
+
+    const { data } = supabase.storage
+      .from('staff')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  } catch (error) {
+    console.error("Error in uploadAvatar:", error);
     return null;
   }
-
-  const { data } = supabase.storage
-    .from('user-content')
-    .getPublicUrl(filePath);
-
-  return data.publicUrl;
 };
