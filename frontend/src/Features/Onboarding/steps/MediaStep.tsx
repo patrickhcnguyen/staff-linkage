@@ -33,7 +33,7 @@ const MediaStep = ({ form, onPrevious, onNext }: MediaStepProps) => {
       const { data: updateData, error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: avatarUrl })
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .select();
 
       console.log('Update response:', { updateData, updateError });
