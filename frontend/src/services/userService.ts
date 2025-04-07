@@ -6,39 +6,29 @@ export interface UserProfile {
   user_id: string;
   first_name: string;
   last_name: string;
-  avatar_url: string;
+  address: string;
   email: string;
   phone: string;
-  bio: string;
-  address: string;
-  skills: string[];
-  experience: string[];
-  education: string[];
-  created_at: string;
-  updated_at: string;
-  rating?: number;
   experience_years: number;
   experience_months: number;
+  gender: string;
+  birth_date: string;
   height_feet: number;
   height_inches: number;
-  birth_date: Date;
-  role?: string;
-  gender?: "male" | "female" | "other" | "prefer-not-to-say";
-  certifications?: Array<{
-    name: string;
-    type: string;
-    image?: string;
-  }>;
-  facebook?: string;
-  twitter?: string;
-  instagram?: string;
-  linkedin?: string;
-  gallery_images?: string[];
+  facebook_url?: string;
+  instagram_url?: string;
+  twitter_url?: string;
+  linkedin_url?: string;
+  skills: string[];
+  avatar_url: string;
   resume_url?: string;
-  resume_name?: string;
-  positions?: string[];
-  jobs_count?: number;
-  reviews_count?: number;
+  travel_nationally: boolean;
+  travel_duration: string;
+  notifications_enabled: boolean;
+  terms_accepted: boolean;
+  is_onboarded: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export const getCurrentUser = async (): Promise<User | null> => {

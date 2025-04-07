@@ -181,32 +181,36 @@ const EditProfile = () => {
     avatar_url: "/placeholder.svg",
     email: "",
     phone: "",
-    bio: "",
     address: "",
     skills: [],
-    experience: [],
-    education: [],
+    // experience: [],
+    // education: [],
     created_at: "",
     updated_at: "",
-    rating: 0,
+    // rating: 0,
     experience_years: 0,
     experience_months: 0,
     height_feet: 0,
     height_inches: 0,
-    birth_date: new Date(),
-    role: "",
+    birth_date: "",
+    // role: "",
     gender: "prefer-not-to-say",
-    certifications: [],
-    facebook: "",
-    twitter: "",
-    instagram: "",
-    linkedin: "",
-    gallery_images: [],
+    // certifications: [],
+    facebook_url: "",
+    twitter_url: "",
+    instagram_url: "",
+    linkedin_url: "",     
+    // gallery_images: [],
     resume_url: "",
-    resume_name: "",
-    positions: [],
-    jobs_count: 0,
-    reviews_count: 0
+    travel_nationally: false,
+    travel_duration: "",
+    notifications_enabled: false,
+    terms_accepted: false,
+    is_onboarded: false,
+    // resume_name: "",
+    // positions: [],
+    // jobs_count: 0,
+    // reviews_count: 0
   });
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>(Array(9).fill(""));
@@ -590,29 +594,29 @@ const EditProfile = () => {
           last_name: profile.last_name,
           email: profile.email,
           phone: profile.phone,
-          bio: profile.bio,
+          // bio: profile.bio,
           address: profile.address,
           avatar_url: profile.avatar_url,
           skills: profile.skills,
-          experience: profile.experience,
-          education: profile.education,
-          rating: profile.rating,
+          // experience: profile.experience,
+          // education: profile.education,
+          // rating: profile.rating,
           experience_years: profile.experience_years,
           experience_months: profile.experience_months,
           height_feet: profile.height_feet,
           height_inches: profile.height_inches,
           birth_date: profile.birth_date,
-          role: profile.role,
+          // role: profile.role,
           gender: profile.gender,
-          certifications: profile.certifications,
-          facebook: profile.facebook,
-          twitter: profile.twitter,
-          instagram: profile.instagram,
-          linkedin: profile.linkedin,
-          gallery_images: profile.gallery_images,
+          // certifications: profile.certifications,
+          // facebook: profile.facebook,
+          // twitter: profile.twitter,
+          // instagram: profile.instagram,
+          // linkedin: profile.linkedin,
+          // gallery_images: profile.gallery_images,
           resume_url: profile.resume_url,
-          resume_name: profile.resume_name,
-          positions: profile.positions
+          // resume_name: profile.resume_name,
+          // positions: profile.positions
         })
         .eq('user_id', user.id);
 
@@ -636,15 +640,15 @@ const EditProfile = () => {
   const profileItems = {
     avatar: !!profileImage && profileImage !== "/placeholder.svg",
     name: !!profile?.first_name && !!profile?.last_name,
-    role: !!profile?.role,
+    // role: !!profile?.role,
     bio: false,
     skills: skills.length > 0,
     contact: !!profile?.email && !!profile?.phone,
     location: !!profile?.address,
-    certifications: profile?.certifications?.length > 0,
+    // certifications: profile?.certifications?.length > 0,
     gallery: galleryImages.some(img => img !== ""),
     resume: !!resume,
-    social: !!(profile?.facebook || profile?.instagram || profile?.linkedin),
+    social: !!(profile?.facebook_url || profile?.instagram_url || profile?.linkedin_url),
   };
 
   const completedItems = Object.values(profileItems).filter(Boolean).length;
@@ -702,7 +706,7 @@ const EditProfile = () => {
                   <div className="w-full space-y-4">
                     <div>
                       <h3 className="text-2xl font-semibold text-center mb-1">{profile?.first_name} {profile?.last_name}</h3>
-                      <div className="flex items-center justify-center gap-0.5 mb-2">
+                      {/* <div className="flex items-center justify-center gap-0.5 mb-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
                             key={star}
@@ -718,8 +722,8 @@ const EditProfile = () => {
                         <span className="text-sm text-muted-foreground ml-1">
                           ({profile?.rating})
                         </span>
-                      </div>
-                      <p className="text-muted-foreground text-center">{profile?.role}</p>
+                      </div> */}
+                      {/* <p className="text-muted-foreground text-center">{profile?.role}</p> */}
                       <p className="text-sm text-muted-foreground text-center mt-1">
                         {profile?.experience_years} years in industry
                       </p>
@@ -729,11 +733,11 @@ const EditProfile = () => {
                         <span className="text-sm text-muted-foreground">{profile?.address}</span>
                       </div>
 
-                      <div className="flex justify-center gap-4 mt-2">
+                      {/* <div className="flex justify-center gap-4 mt-2">
                         {[
-                          { platform: 'facebook', url: profile?.facebook, Icon: Facebook },
-                          { platform: 'instagram', url: profile?.instagram, Icon: Instagram },
-                          { platform: 'linkedin', url: profile?.linkedin, Icon: Linkedin }
+                          { platform: 'facebook', url: profile?.facebook_url, Icon: Facebook },
+                          { platform: 'instagram', url: profile?.instagram_url, Icon: Instagram },
+                          { platform: 'linkedin', url: profile?.linkedin_url, Icon: Linkedin }
                         ].map(({ platform, url, Icon }) => url ? (
                           <a 
                             key={platform}
@@ -745,7 +749,7 @@ const EditProfile = () => {
                             <Icon className="h-5 w-5" />
                           </a>
                         ) : null)}
-                      </div>
+                      </div> */}
                     </div>
 
                     <div className="pt-4 space-y-2">
@@ -833,7 +837,7 @@ const EditProfile = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col items-center justify-center py-4">
-                  <span className="text-4xl font-bold text-primary">{profile?.certifications?.length}</span>
+                  {/* <span className="text-4xl font-bold text-primary">{profile?.certifications?.length}</span> */}
                   <span className="text-sm text-muted-foreground mt-1">Total Certifications</span>
                 </div>
               </CardContent>
@@ -878,7 +882,7 @@ const EditProfile = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {/* <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {profile?.certifications?.map((cert, index) => (
                   <div key={index} className="flex flex-col items-center p-4 border rounded-lg relative group">
                     <div className="relative w-16 h-16 mb-2">
@@ -922,7 +926,7 @@ const EditProfile = () => {
                     )}
                   </div>
                 ))}
-              </div>
+              </div> */}
             </CardContent>
           </Card>
 
