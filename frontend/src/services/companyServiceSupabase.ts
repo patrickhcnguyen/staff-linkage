@@ -99,39 +99,23 @@ export const getCompanyById = async (companyId: string): Promise<CompanyProfileD
   return data as CompanyProfileDB;
 };
 
-export const uploadCompanyLogo = async (file: File): Promise<string | null> => {
+export const uploadCompanyLogo = async (companyId: string, file: File): Promise<string | null> => {
   try {
-    // Get current authenticated user
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
-    
-    // Create bucket if it doesn't exist
-    const { error: bucketError } = await supabase.storage
-      .createBucket('company-content', {
-        public: true,
-        fileSizeLimit: 5242880, // 5MB
-      });
-    
-    if (bucketError && bucketError.message !== 'Bucket already exists') {
-      console.error('Error creating bucket:', bucketError);
-      return null;
-    }
-    
     const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `company-logos/${fileName}`;
+    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `${companyId}/${fileName}`;
 
     const { error } = await supabase.storage
-      .from('company-content')
+      .from('companies')
       .upload(filePath, file);
 
     if (error) {
-      console.error('Error uploading company logo:', error);
+      console.error('Error uploading logo:', error);
       return null;
     }
 
     const { data } = supabase.storage
-      .from('company-content')
+      .from('companies')
       .getPublicUrl(filePath);
 
     return data.publicUrl;
