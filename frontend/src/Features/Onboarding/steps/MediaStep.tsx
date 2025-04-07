@@ -5,7 +5,7 @@ import { Input } from "@/Shared/components/ui/input";
 import { SocialMediaValues } from "../useStaffOnboardingForm";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/Shared/components/ui/form";
 import { supabase } from '@/lib/supabase';
-import { uploadAvatar } from '@/services/userService';
+import { uploadAvatar, updateUserResume } from '@/services/userService';
 
 interface MediaStepProps {
   form: UseFormReturn<SocialMediaValues>;
@@ -25,7 +25,7 @@ const MediaStep = ({ form, onPrevious, onNext }: MediaStepProps) => {
       if (!user) throw new Error('No user found');
       console.log('User found:', user.id);
 
-      // not working right now, avatar url is not updating in supabase
+
       const avatarUrl = await uploadAvatar(user.id, file);
       console.log('Avatar URL after upload:', avatarUrl);
       if (!avatarUrl) throw new Error('Failed to upload avatar');
@@ -44,6 +44,35 @@ const MediaStep = ({ form, onPrevious, onNext }: MediaStepProps) => {
     } catch (error) {
       console.error('Error in handleImageUpload:', error);
     }
+  };
+
+  const handleResumeUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('No user found');
+        console.log('User found:', user.id);
+  
+  
+        const resumeUrl = await updateUserResume(user.id, file);
+        console.log('Resume URL after upload:', resumeUrl);
+        if (!resumeUrl) throw new Error('Failed to upload resume');
+  
+        const { data: updateData, error: updateError } = await supabase
+          .from('profiles')
+          .update({ resume_url: resumeUrl })
+          .eq('user_id', user.id)
+          .select();
+  
+        console.log('Update response:', { updateData, updateError });
+        
+        if (updateError) throw updateError;
+  
+        
+      } catch (error) {
+        console.error('Error in handleResumeUpload:', error);
+      }
   };
 
 
@@ -83,7 +112,7 @@ const MediaStep = ({ form, onPrevious, onNext }: MediaStepProps) => {
                     <Input
                       type="file"
                       accept=".pdf"
-                      onChange={(e) => onChange(e.target.files)}
+                      onChange={handleResumeUpload}
                       {...field}
                     />
                   </FormControl>

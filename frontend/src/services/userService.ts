@@ -117,3 +117,29 @@ export const uploadAvatar = async (userId: string, file: File): Promise<string |
     return null;
   }
 };
+
+export const updateUserResume = async (userId: string, file: File) : Promise<string | null> => {
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `${userId}/${fileName}`;
+
+    const { error } = await supabase.storage
+      .from('staff')
+      .upload(filePath, file);
+
+    if (error) {
+      console.error('Error uploading resume:', error);
+      return null;
+    }
+
+    const { data } = supabase.storage
+      .from('staff')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  } catch (error) {
+    console.error("Error in updateUserResume:", error);
+    return null;
+  }
+}
