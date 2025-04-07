@@ -27,11 +27,12 @@ import {
   CompanyProfileDB,
   updateCompany,
   uploadCompanyLogo,
-  uploadGalleryImage,
   getCompanyByUserId,
   calculateProfileCompletion
 } from "@/services/companyServiceSupabase";
 import { useCompanyData } from "@/Shared/hooks/useCompanyData";
+import { uploadAvatar } from "@/services/userService";
+import { supabase } from "@/lib/supabase";
 
 const EditCompanyProfile = () => {
   const navigate = useNavigate();
@@ -156,13 +157,29 @@ const EditCompanyProfile = () => {
     const file = event.target.files?.[0];
     if (file && companyData) {
       try {
-        const logoUrl = await uploadCompanyLogo(file);
-        if (logoUrl) {
-          const updated = await updateCompany(companyData.id, { logo_url: logoUrl });
-          if (updated) setCompanyData(updated);
-        }
+        const logoUrl = await uploadCompanyLogo(companyData.id, file);
+        if (!logoUrl) throw new Error('Failed to upload logo');
+
+        const { error: updateError } = await supabase
+          .from('companies')
+          .update({ logo_url: logoUrl })
+          .eq('company_id', companyData.id);
+
+        if (updateError) throw updateError;
+
+        setCompanyData(prev => prev ? { ...prev, logo_url: logoUrl } : null);
+        
+        toast({
+          title: "Success",
+          description: "Profile image updated successfully"
+        });
       } catch (error) {
         console.error("Error uploading logo:", error);
+        toast({
+          title: "Error",
+          description: "Failed to upload image",
+          variant: "destructive"
+        });
       }
     }
   };
