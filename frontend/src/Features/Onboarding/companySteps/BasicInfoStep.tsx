@@ -8,6 +8,8 @@ import { Progress } from "@/Shared/components/ui/progress";
 import { Textarea } from "@/Shared/components/ui/textarea";
 import { Label } from "@/Shared/components/ui/label";
 import { Building, Users, Briefcase, Handshake, Loader2 } from "lucide-react";
+import { uploadCompanyLogo } from "@/services/companyServiceSupabase";
+import { supabase } from "@/lib/supabase";
 
 interface BasicInfoStepProps {
   form: UseFormReturn<BasicCompanyInfoValues>;
@@ -18,20 +20,48 @@ interface BasicInfoStepProps {
 }
 
 const BasicInfoStep = ({ form, onNext, currentStep, totalSteps, isSubmitting = false }: BasicInfoStepProps) => {
-  const [logo, setLogo] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string>("/placeholder.svg");
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      setLogo(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          setLogoPreview(e.target.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user found');
+      console.log('User found:', user.id);
+
+      const logoUrl = await uploadCompanyLogo(user.id, file);
+      console.log('Logo URL after upload:', logoUrl);
+      if (!logoUrl) throw new Error('Failed to upload logo');
+
+      console.log('Attempting to update with:', {
+        logo_url: logoUrl,
+        company_id: user.id
+      });
+
+      const { data: updateData, error: updateError } = await supabase
+        .from('companies')
+        .update({ 
+          logo_url: logoUrl
+        })
+        .eq('company_id', user.id)
+        .select('*');
+
+      console.log('Full update response data:', updateData);
+      console.log('Update error if any:', updateError);
+      
+      if (updateError) throw updateError;
+
+      if (updateData && updateData[0]) {
+        console.log('Saved logo_url:', updateData[0].logo_url);
+      }
+
+      setLogoPreview(logoUrl);
+      form.setValue('companyPhoto', event.target.files);
+      
+    } catch (error) {
+      console.error('Error in handleLogoUpload:', error);
     }
   };
 
@@ -82,7 +112,6 @@ const BasicInfoStep = ({ form, onNext, currentStep, totalSteps, isSubmitting = f
             <div className="relative mb-4">
               <img 
                 src={logoPreview} 
-                alt="Company logo" 
                 className="w-32 h-32 rounded-full object-cover border-2 border-border"
               />
               <label 

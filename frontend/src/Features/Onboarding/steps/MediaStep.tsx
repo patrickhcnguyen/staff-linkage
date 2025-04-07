@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/Shared/components/ui/button";
 import { Input } from "@/Shared/components/ui/input";
 import { SocialMediaValues } from "../useStaffOnboardingForm";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/Shared/components/ui/form";
+import { supabase } from '@/lib/supabase';
+import { uploadAvatar, updateUserResume } from '@/services/userService';
 
 interface MediaStepProps {
   form: UseFormReturn<SocialMediaValues>;
@@ -12,16 +13,66 @@ interface MediaStepProps {
 }
 
 const MediaStep = ({ form, onPrevious, onNext }: MediaStepProps) => {
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const profilePhoto = form.watch('profilePhoto');
 
-  useEffect(() => {
-    if (profilePhoto?.[0]) {
-      const reader = new FileReader();
-      reader.onloadend = () => setPhotoPreview(reader.result as string);
-      reader.readAsDataURL(profilePhoto[0]);
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user found');
+      console.log('User found:', user.id);
+
+
+      const avatarUrl = await uploadAvatar(user.id, file);
+      console.log('Avatar URL after upload:', avatarUrl);
+      if (!avatarUrl) throw new Error('Failed to upload avatar');
+
+      const { data: updateData, error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: avatarUrl })
+        .eq('user_id', user.id)
+        .select();
+
+      console.log('Update response:', { updateData, updateError });
+      
+      if (updateError) throw updateError;
+
+      
+    } catch (error) {
+      console.error('Error in handleImageUpload:', error);
     }
-  }, [profilePhoto]);
+  };
+
+  const handleResumeUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('No user found');
+        console.log('User found:', user.id);
+  
+  
+        const resumeUrl = await updateUserResume(user.id, file);
+        console.log('Resume URL after upload:', resumeUrl);
+        if (!resumeUrl) throw new Error('Failed to upload resume');
+  
+        const { data: updateData, error: updateError } = await supabase
+          .from('profiles')
+          .update({ resume_url: resumeUrl })
+          .eq('user_id', user.id)
+          .select();
+  
+        console.log('Update response:', { updateData, updateError });
+        
+        if (updateError) throw updateError;
+  
+        
+      } catch (error) {
+        console.error('Error in handleResumeUpload:', error);
+      }
+  };
+
 
   return (
     <div className="space-y-6">
@@ -38,11 +89,10 @@ const MediaStep = ({ form, onPrevious, onNext }: MediaStepProps) => {
                     <Input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => onChange(e.target.files)}
+                      onChange={handleImageUpload}
                       {...field}
                     />
                   </FormControl>
-                  
                 </div>
                 <FormMessage />
               </FormItem>
@@ -60,7 +110,7 @@ const MediaStep = ({ form, onPrevious, onNext }: MediaStepProps) => {
                     <Input
                       type="file"
                       accept=".pdf"
-                      onChange={(e) => onChange(e.target.files)}
+                      onChange={handleResumeUpload}
                       {...field}
                     />
                   </FormControl>

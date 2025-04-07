@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/Shared/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,7 +11,13 @@ import { Loader2 } from "lucide-react";
 const CompanyDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { company, jobs, activeJobs, loading, error } = useCompanyData();
+  const { company, loading, error } = useCompanyData();
+  const stats = {
+    totalJobs: 0,
+    activeJobs: 0,
+    totalApplications: 0,
+    averageRating: 4.8
+  };
 
   if (!user) {
     return (
@@ -59,14 +64,6 @@ const CompanyDashboard = () => {
     );
   }
 
-  // Stats data
-  const stats = {
-    totalJobs: jobs.length,
-    activeJobs: activeJobs.length,
-    totalApplications: jobs.reduce((sum, job) => sum + (job.applicants_count || 0), 0),
-    averageRating: 4.8 // Mock data until we have real ratings
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid gap-6">
@@ -89,7 +86,7 @@ const CompanyDashboard = () => {
           averageRating={stats.averageRating}
         />
 
-        <ActiveJobs jobs={activeJobs} />
+        <ActiveJobs jobs={[]} />
       </div>
     </div>
   );

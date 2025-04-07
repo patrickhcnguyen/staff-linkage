@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/Shared/components/ui/button";
 import { Input } from "@/Shared/components/ui/input";
@@ -10,32 +10,29 @@ import { Progress } from "@/Shared/components/ui/progress";
 import { useToast } from "@/Shared/hooks/use-toast";
 import {
   Camera,
-  Building,
   MapPin,
   Pencil,
   Plus,
   X,
-  Globe,
-  Mail,
-  Phone,
   Facebook,
   Twitter,
   Instagram,
   Linkedin,
   FileText,
   Star,
-  Users
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/Shared/components/ui/dialog";
 import { Separator } from "@/Shared/components/ui/separator";
 import { 
-  getCompanyProfile, 
-  updateCompanyProfile, 
-  handleImageUpload, 
-  calculateProfileCompletion,
-  CompanyProfile
-} from "@/services/companyService";
+  CompanyProfileDB,
+  updateCompany,
+  uploadCompanyLogo,
+  getCompanyByUserId,
+  calculateProfileCompletion
+} from "@/services/companyServiceSupabase";
 import { useCompanyData } from "@/Shared/hooks/useCompanyData";
+import { uploadAvatar } from "@/services/userService";
+import { supabase } from "@/lib/supabase";
 
 const EditCompanyProfile = () => {
   const navigate = useNavigate();
@@ -45,9 +42,9 @@ const EditCompanyProfile = () => {
   const [isEditingDetails, setIsEditingDetails] = useState(false);
   const [isEditingKeyPlayers, setIsEditingKeyPlayers] = useState(false);
   const [isGalleryDialogOpen, setIsGalleryDialogOpen] = useState(false);
-  
+  const [logoImage, setLogoImage] = useState<string | null>(null);
   const { company, loading: supabaseLoading, error: supabaseError } = useCompanyData();
-  const [companyData, setCompanyData] = useState<CompanyProfile | null>(null);
+  const [companyData, setCompanyData] = useState<CompanyProfileDB | null>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [socialMedia, setSocialMedia] = useState({
     facebook: "",
@@ -58,227 +55,234 @@ const EditCompanyProfile = () => {
   const [completionProgress, setCompletionProgress] = useState(0);
   const [profileItems, setProfileItems] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
-  const [keyPlayers, setKeyPlayers] = useState<{
-    id: number;
-    name: string;
-    role: string;
-    image: string;
-    bio: string;
-  }[]>([]);
 
   useEffect(() => {
-    if (company && !supabaseLoading) {
-      const mappedCompany: CompanyProfile = {
-        id: company.id,
-        name: company.name || "",
-        type: company.type || "",
-        logo: company.logo_url || "/placeholder.svg",
-        website: company.website || "",
-        email: company.email || "",
-        phone: company.phone || "",
-        description: company.description || "",
-        founded: company.founded || "",
-        size: company.size || "",
-        address: {
+    const loadData = async () => {
+      if (company && !supabaseLoading) {
+        const mappedCompany: CompanyProfileDB = {
+          id: company.id,
+          company_id: company.company_id,
+          name: company.name || "",
+          type: company.type || "",
+          number_of_employees: company.number_of_employees,
+          logo_url: company.logo_url || "/placeholder.svg",
+          website: company.website || "",
+          email: company.email || "",
+          phone: company.phone || "",
+          description: company.description || "",
+          founded: company.founded || "",
           street: company.street || "",
           city: company.city || "",
           state: company.state || "",
-          zipCode: company.zip_code || "",
-        },
-        socialMedia: {
+          zip_code: company.zip_code || "",
           facebook: company.facebook || "",
           twitter: company.twitter || "",
           instagram: company.instagram || "",
           linkedin: company.linkedin || "",
-        },
-        keyPlayers: [],
-        galleryImages: Array(9).fill(""),
-        completedProfile: true,
-      };
-      
-      setCompanyData(mappedCompany);
-      setSocialMedia(mappedCompany.socialMedia);
-      setKeyPlayers([]);
-      
-      const completion = calculateProfileCompletion(mappedCompany);
-      setCompletionProgress(completion);
-      
-      const items = {
-        logo: mappedCompany.logo !== "/placeholder.svg",
-        basicInfo: !!mappedCompany.name && !!mappedCompany.type,
-        description: !!mappedCompany.description,
-        contact: !!mappedCompany.email && !!mappedCompany.phone,
-        location: !!mappedCompany.address.city && !!mappedCompany.address.state,
-        social: Object.values(mappedCompany.socialMedia).some(url => !!url),
-        gallery: false,
-        website: !!mappedCompany.website
-      };
-      setProfileItems(items);
-      
-      setIsLoading(false);
-    } else if (!supabaseLoading && !company) {
-      const localCompany = getCompanyProfile();
-      if (!localCompany || !localCompany.id) {
-        navigate('/company-onboarding');
-        return;
-      }
-
-      setCompanyData(localCompany);
-      setGalleryImages(localCompany.galleryImages);
-      setSocialMedia(localCompany.socialMedia);
-      
-      let parsedKeyPlayers = [];
-      if (typeof localCompany.keyPlayers === 'string') {
-        try {
-          parsedKeyPlayers = JSON.parse(localCompany.keyPlayers);
-        } catch (e) {
-          console.error("Error parsing keyPlayers:", e);
-          parsedKeyPlayers = [];
+          created_at: company.created_at,
+          updated_at: company.updated_at
+        };
+        
+        setCompanyData(mappedCompany);
+        setSocialMedia({
+          facebook: mappedCompany.facebook,
+          twitter: mappedCompany.twitter,
+          instagram: mappedCompany.instagram,
+          linkedin: mappedCompany.linkedin
+        });
+        setIsLoading(false);
+      } else if (!supabaseLoading && !company) {
+        const localCompany = await getCompanyByUserId(company.company_id);
+        if (!localCompany || !localCompany.company_id) {
+          navigate('/company-onboarding');
+          return;
         }
-      } else if (Array.isArray(localCompany.keyPlayers)) {
-        parsedKeyPlayers = localCompany.keyPlayers;
+
+        setCompanyData(localCompany);
+        // setGalleryImages(localCompany.galleryImages);
+        setSocialMedia({
+          facebook: localCompany.facebook || "",
+          twitter: localCompany.twitter || "",
+          instagram: localCompany.instagram || "",
+          linkedin: localCompany.linkedin || ""
+        });
+        
+        // let parsedKeyPlayers = [];
+        // if (typeof localCompany.keyPlayers === 'string') {
+        //   try {
+        //     parsedKeyPlayers = JSON.parse(localCompany.keyPlayers);
+        //   } catch (e) {
+        //     console.error("Error parsing keyPlayers:", e);
+        //     parsedKeyPlayers = [];
+        //   }
+        // } else if (Array.isArray(localCompany.keyPlayers)) {
+        //   parsedKeyPlayers = localCompany.keyPlayers;
+        // }
+        
+        // setKeyPlayers(parsedKeyPlayers);
+        
+        const completion = calculateProfileCompletion(localCompany.id);
+        setCompletionProgress(await completion);
+        
+        const items = {
+          logo_url: localCompany.logo_url !== "/placeholder.svg",
+          basicInfo: !!localCompany.name && !!localCompany.type,
+          description: !!localCompany.description,
+          contact: !!localCompany.email && !!localCompany.phone,
+          location: !!(
+            localCompany.street && 
+            localCompany.city && 
+            localCompany.state && 
+            localCompany.zip_code
+          ),
+          social: !!(
+            localCompany.facebook || 
+            localCompany.twitter || 
+            localCompany.instagram || 
+            localCompany.linkedin
+          ),
+          // gallery: localCompany.galleryImages.some(img => !!img),
+          website: !!localCompany.website
+        };
+        setProfileItems(items);
+        
+        setIsLoading(false);
       }
-      
-      setKeyPlayers(parsedKeyPlayers);
-      
-      const completion = calculateProfileCompletion(localCompany);
-      setCompletionProgress(completion);
-      
-      const items = {
-        logo: localCompany.logo !== "/placeholder.svg",
-        basicInfo: !!localCompany.name && !!localCompany.type,
-        description: !!localCompany.description,
-        contact: !!localCompany.email && !!localCompany.phone,
-        location: !!localCompany.address.city && !!localCompany.address.state,
-        social: Object.values(localCompany.socialMedia).some(url => !!url),
-        gallery: localCompany.galleryImages.some(img => !!img),
-        website: !!localCompany.website
-      };
-      setProfileItems(items);
-      
-      setIsLoading(false);
-    }
+    };
+    
+    loadData();
   }, [company, supabaseLoading, navigate]);
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && companyData) {
       try {
-        const base64Logo = await handleImageUpload(file);
-        const updatedCompany = updateCompanyProfile({ logo: base64Logo });
-        setCompanyData(updatedCompany);
-        toast({
-          title: "Success",
-          description: "Company logo updated successfully!"
+        // First upload the file
+        const logoUrl = await uploadCompanyLogo(companyData.company_id, file); // Note: using company_id instead of id
+        if (!logoUrl) throw new Error('Failed to upload logo');
+
+        // Then update the company record
+        const updated = await updateCompany(companyData.id, { 
+          logo_url: logoUrl 
         });
+
+        if (updated) {
+          setCompanyData(updated);
+          toast({
+            title: "Success",
+            description: "Company logo updated successfully"
+          });
+        }
       } catch (error) {
-        console.error("Error processing logo:", error);
+        console.error("Error uploading logo:", error);
         toast({
           title: "Error",
-          description: "Failed to process the image. Please try another.",
+          description: "Failed to upload logo",
           variant: "destructive"
         });
       }
     }
   };
 
-  const handleGalleryImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    const file = event.target.files?.[0];
-    if (file && companyData) {
-      try {
-        const base64Image = await handleImageUpload(file);
-        const newGalleryImages = [...galleryImages];
-        newGalleryImages[index] = base64Image;
-        setGalleryImages(newGalleryImages);
+  // const handleGalleryImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  //   const file = event.target.files?.[0];
+  //   if (file && companyData) {
+  //     try {
+  //       const base64Image = await handleImageUpload(file);
+  //       const newGalleryImages = [...galleryImages];
+  //       newGalleryImages[index] = base64Image;
+  //       setGalleryImages(newGalleryImages);
         
-        const updatedCompany = updateCompanyProfile({ galleryImages: newGalleryImages });
-        setCompanyData(updatedCompany);
+  //       const updatedCompany = updateCompanyProfile({ galleryImages: newGalleryImages });
+  //       setCompanyData(updatedCompany);
         
-        toast({
-          title: "Success",
-          description: "Gallery image uploaded successfully!"
-        });
-      } catch (error) {
-        console.error("Error processing image:", error);
-        toast({
-          title: "Error",
-          description: "Failed to process the image. Please try another.",
-          variant: "destructive"
-        });
-      }
+  //       toast({
+  //         title: "Success",
+  //         description: "Gallery image uploaded successfully!"
+  //       });
+  //     } catch (error) {
+  //       console.error("Error processing image:", error);
+  //       toast({
+  //         title: "Error",
+  //         description: "Failed to process the image. Please try another.",
+  //         variant: "destructive"
+  //       });
+  //     }
+  //   }
+  // };
+
+  // const deletePhoto = (index: number) => {
+  //   if (!companyData) return;
+    
+  //   const newGalleryImages = [...galleryImages];
+  //   newGalleryImages[index] = "";
+  //   setGalleryImages(newGalleryImages);
+    
+  //   const updatedCompany = updateCompanyProfile({ galleryImages: newGalleryImages });
+  //   setCompanyData(updatedCompany);
+    
+  //   toast({
+  //     title: "Success",
+  //     description: "Photo removed from gallery"
+  //   });
+  // };
+
+  const handleAddressChange = async (field: string, value: string) => {
+    if (!companyData) return;
+    
+    // Map the frontend field names to database column names
+    const fieldMapping: Record<string, string> = {
+      street: 'street',
+      city: 'city',
+      state: 'state',
+      zipCode: 'zip_code'
+    };
+
+    const updates = {
+      [fieldMapping[field]]: value
+    };
+    
+    const updated = await updateCompany(companyData.id, updates);
+    if (updated) {
+      setCompanyData(updated);
     }
   };
 
-  const deletePhoto = (index: number) => {
+  const handleSocialMediaChange = async (platform: keyof typeof socialMedia, value: string) => {
     if (!companyData) return;
     
-    const newGalleryImages = [...galleryImages];
-    newGalleryImages[index] = "";
-    setGalleryImages(newGalleryImages);
-    
-    const updatedCompany = updateCompanyProfile({ galleryImages: newGalleryImages });
-    setCompanyData(updatedCompany);
-    
-    toast({
-      title: "Success",
-      description: "Photo removed from gallery"
-    });
-  };
-
-  const handleInfoChange = (field: keyof CompanyProfile, value: string) => {
-    if (!companyData) return;
-    
-    const updates = { [field]: value } as Partial<CompanyProfile>;
-    const updatedCompany = updateCompanyProfile(updates);
-    setCompanyData(updatedCompany);
-  };
-
-  const handleAddressChange = (field: string, value: string) => {
-    if (!companyData) return;
-    
-    const updatedAddress = { 
-      ...companyData.address, 
-      [field]: value 
+    const updates = {
+      [platform]: value
     };
     
-    const updatedCompany = updateCompanyProfile({ address: updatedAddress });
-    setCompanyData(updatedCompany);
+    setSocialMedia(prev => ({ ...prev, [platform]: value }));
+    const updated = await updateCompany(companyData.id, updates);
+    if (updated) {
+      setCompanyData(updated);
+    }
   };
 
-  const handleSocialMediaChange = (platform: keyof typeof socialMedia, value: string) => {
-    if (!companyData) return;
+  // const saveKeyPlayers = (players: any[]) => {
+  //   if (!companyData) return;
     
-    const updatedSocialMedia = { 
-      ...companyData.socialMedia, 
-      [platform]: value 
-    };
+  //   setKeyPlayers(players);
     
-    setSocialMedia(updatedSocialMedia);
-    const updatedCompany = updateCompanyProfile({ socialMedia: updatedSocialMedia });
-    setCompanyData(updatedCompany);
-  };
+  //   const updatedCompany = updateCompanyProfile({ keyPlayers: players });
+  //   setCompanyData(updatedCompany);
+    
+  //   toast({
+  //     title: "Success",
+  //     description: "Key players updated successfully!"
+  //   });
+    
+  //   setIsEditingKeyPlayers(false);
+  // };
 
-  const saveKeyPlayers = (players: any[]) => {
+  const saveDescription = async (description: string) => {
     if (!companyData) return;
     
-    setKeyPlayers(players);
-    
-    const updatedCompany = updateCompanyProfile({ keyPlayers: players });
-    setCompanyData(updatedCompany);
-    
-    toast({
-      title: "Success",
-      description: "Key players updated successfully!"
-    });
-    
-    setIsEditingKeyPlayers(false);
-  };
-
-  const saveDescription = (description: string) => {
-    if (!companyData) return;
-    
-    const updatedCompany = updateCompanyProfile({ description });
-    setCompanyData(updatedCompany);
+    const updated = await updateCompany(companyData.id, { description });
+    if (updated) setCompanyData(updated);
     
     toast({
       title: "Success",
@@ -288,18 +292,40 @@ const EditCompanyProfile = () => {
     setIsEditingAbout(false);
   };
 
-  const saveCompanyInfo = () => {
+  const handleInfoChange = async (field: string, value: string) => {
     if (!companyData) return;
     
-    updateCompanyProfile({
+    const updates = {
+      [field]: value
+    };
+    
+    // Update local state immediately for better UX
+    setCompanyData(prev => prev ? { ...prev, [field]: value } : null);
+    
+    // Then update the database
+    const updated = await updateCompany(companyData.id, updates);
+    if (updated) {
+      setCompanyData(updated);
+    }
+  };
+
+  const saveCompanyInfo = async () => {
+    if (!companyData) return;
+    
+    const updated = await updateCompany(companyData.id, {
       name: companyData.name,
       type: companyData.type,
-      address: companyData.address,
-      socialMedia: companyData.socialMedia
+      facebook: companyData.facebook,
+      twitter: companyData.twitter,
+      instagram: companyData.instagram,
+      linkedin: companyData.linkedin
     });
     
-    const completion = calculateProfileCompletion(companyData);
-    setCompletionProgress(completion);
+    if (updated) {
+      setCompanyData(updated);
+      const completion = await calculateProfileCompletion(updated.id);
+      setCompletionProgress(completion);
+    }
     
     toast({
       title: "Success",
@@ -309,19 +335,25 @@ const EditCompanyProfile = () => {
     setIsEditingInfo(false);
   };
 
-  const saveCompanyDetails = () => {
+  const saveCompanyDetails = async () => {
     if (!companyData) return;
     
-    updateCompanyProfile({
+    const updated = await updateCompany(companyData.id, {
       founded: companyData.founded,
-      size: companyData.size,
-      address: companyData.address
+      number_of_employees: companyData.number_of_employees,
+      street: companyData.street,
+      city: companyData.city,
+      state: companyData.state,
+      zip_code: companyData.zip_code
     });
     
-    toast({
-      title: "Success",
-      description: "Company details updated successfully!"
-    });
+    if (updated) {
+      setCompanyData(updated);
+      toast({
+        title: "Success",
+        description: "Company details updated successfully!"
+      });
+    }
     
     setIsEditingDetails(false);
   };
@@ -346,6 +378,14 @@ const EditCompanyProfile = () => {
     );
   }
 
+  function deletePhoto(index: number): void {
+    throw new Error("Function not implemented.");
+  }
+
+  function handleGalleryImageUpload(e: ChangeEvent<HTMLInputElement>, index: number): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex gap-8">
@@ -368,7 +408,7 @@ const EditCompanyProfile = () => {
                 <div className="flex flex-col items-center">
                   <div className="relative">
                     <Avatar className="h-40 w-40 mb-6">
-                      <AvatarImage src={companyData.logo} />
+                      <AvatarImage src={companyData.logo_url} />
                       <AvatarFallback>{companyData.name[0]}</AvatarFallback>
                     </Avatar>
                     <label 
@@ -393,23 +433,19 @@ const EditCompanyProfile = () => {
                       <div className="flex items-center justify-center gap-1 mt-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm text-muted-foreground">
-                          {companyData.address.city || "No location"}, {companyData.address.state || ""}
+                          {companyData.city || "No location"}, {companyData.state || ""}
                         </span>
                       </div>
                     </div>
 
                     <div className="flex justify-center gap-4">
-                      {Object.entries(companyData.socialMedia).map(([platform, url]) => {
+                      {[
+                        { platform: 'facebook', url: companyData.facebook, Icon: Facebook },
+                        { platform: 'twitter', url: companyData.twitter, Icon: Twitter },
+                        { platform: 'instagram', url: companyData.instagram, Icon: Instagram },
+                        { platform: 'linkedin', url: companyData.linkedin, Icon: Linkedin }
+                      ].map(({ platform, url, Icon }) => {
                         if (!url) return null;
-                        
-                        let Icon;
-                        switch (platform) {
-                          case "facebook": Icon = Facebook; break;
-                          case "twitter": Icon = Twitter; break;
-                          case "instagram": Icon = Instagram; break;
-                          case "linkedin": Icon = Linkedin; break;
-                          default: return null;
-                        }
                         
                         return (
                           <a 
@@ -451,7 +487,7 @@ const EditCompanyProfile = () => {
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Company Size</Label>
-                  <p>{companyData.size || "Not specified"} employees</p>
+                  <p>{companyData.number_of_employees || "Not specified"} employees</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Website</Label>
@@ -468,8 +504,8 @@ const EditCompanyProfile = () => {
                 <div>
                   <Label className="text-muted-foreground">Full Address</Label>
                   <p className="text-sm">
-                    {companyData.address.street || "No street address"}<br />
-                    {companyData.address.city || "No city"}, {companyData.address.state || ""} {companyData.address.zipCode || ""}
+                    {companyData.street || "No street address"}<br />
+                    {companyData.city || "No city"}, {companyData.state || ""} {companyData.zip_code || ""}
                   </p>
                 </div>
               </div>
@@ -590,6 +626,7 @@ const EditCompanyProfile = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
+              {/* Commenting out key players functionality
               {keyPlayers && keyPlayers.length > 0 ? (
                 <div className="grid grid-cols-2 gap-6">
                   {keyPlayers.map((player) => (
@@ -618,6 +655,7 @@ const EditCompanyProfile = () => {
                   </Button>
                 </div>
               )}
+              */}
             </CardContent>
           </Card>
 
@@ -724,12 +762,12 @@ const EditCompanyProfile = () => {
               <div className="grid grid-cols-2 gap-3">
                 <Input
                   placeholder="City"
-                  value={companyData.address.city}
+                  value={companyData.city}
                   onChange={(e) => handleAddressChange('city', e.target.value)}
                 />
                 <Input
                   placeholder="State"
-                  value={companyData.address.state}
+                  value={companyData.state}
                   onChange={(e) => handleAddressChange('state', e.target.value)}
                 />
               </div>
@@ -747,7 +785,7 @@ const EditCompanyProfile = () => {
                   </div>
                   <Input
                     id="facebook"
-                    value={companyData.socialMedia.facebook}
+                    value={companyData.facebook}
                     onChange={(e) => handleSocialMediaChange('facebook', e.target.value)}
                     placeholder="facebook.com/company"
                   />
@@ -759,7 +797,7 @@ const EditCompanyProfile = () => {
                   </div>
                   <Input
                     id="twitter"
-                    value={companyData.socialMedia.twitter}
+                    value={companyData.twitter}
                     onChange={(e) => handleSocialMediaChange('twitter', e.target.value)}
                     placeholder="twitter.com/company"
                   />
@@ -771,7 +809,7 @@ const EditCompanyProfile = () => {
                   </div>
                   <Input
                     id="instagram"
-                    value={companyData.socialMedia.instagram}
+                    value={companyData.instagram}
                     onChange={(e) => handleSocialMediaChange('instagram', e.target.value)}
                     placeholder="instagram.com/company"
                   />
@@ -783,7 +821,7 @@ const EditCompanyProfile = () => {
                   </div>
                   <Input
                     id="linkedin"
-                    value={companyData.socialMedia.linkedin}
+                    value={companyData.linkedin}
                     onChange={(e) => handleSocialMediaChange('linkedin', e.target.value)}
                     placeholder="linkedin.com/company/name"
                   />
@@ -883,15 +921,15 @@ const EditCompanyProfile = () => {
               <div>
                 <Label>Company Size</Label>
                 <Input
-                  value={companyData.size}
-                  onChange={(e) => handleInfoChange('size', e.target.value)}
+                  value={companyData.number_of_employees}
+                  onChange={(e) => handleInfoChange('number_of_employees', e.target.value)}
                 />
-              </div>
+              </div> 
             </div>
             <div>
               <Label>Street Address</Label>
               <Input
-                value={companyData.address.street}
+                value={companyData.street}
                 onChange={(e) => handleAddressChange('street', e.target.value)}
               />
             </div>
@@ -899,21 +937,21 @@ const EditCompanyProfile = () => {
               <div>
                 <Label>City</Label>
                 <Input
-                  value={companyData.address.city}
+                  value={companyData.city}
                   onChange={(e) => handleAddressChange('city', e.target.value)}
                 />
               </div>
               <div>
                 <Label>State</Label>
                 <Input
-                  value={companyData.address.state}
+                  value={companyData.state}
                   onChange={(e) => handleAddressChange('state', e.target.value)}
                 />
               </div>
               <div>
                 <Label>ZIP Code</Label>
                 <Input
-                  value={companyData.address.zipCode}
+                  value={companyData.zip_code}
                   onChange={(e) => handleAddressChange('zipCode', e.target.value)}
                 />
               </div>
@@ -931,6 +969,7 @@ const EditCompanyProfile = () => {
             <DialogTitle>Edit Key Players</DialogTitle>
           </DialogHeader>
           <div className="space-y-6 py-4">
+            {/* Commenting out key players functionality
             {keyPlayers.map((player, index) => (
               <div key={player.id} className="space-y-4 pb-4 border-b last:border-0">
                 <div className="flex justify-between items-start">
@@ -1004,9 +1043,10 @@ const EditCompanyProfile = () => {
               <Plus className="h-4 w-4 mr-2" />
               Add Key Player
             </Button>
+            */}
           </div>
           <DialogFooter>
-            <Button onClick={() => saveKeyPlayers(keyPlayers)}>Save Changes</Button>
+            <Button onClick={() => {}}>Save Changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

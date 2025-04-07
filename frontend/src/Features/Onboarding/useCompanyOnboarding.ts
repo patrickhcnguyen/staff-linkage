@@ -19,17 +19,17 @@ const basicInfoSchema = z.object({
     numberOfEmployees: z.string(),
     website: z.string().optional(), //
     companyPhoto: z
-    .instanceof(FileList)
-    .refine(
-        (files) => !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
-        'Max image size is 5MB'
-    )
-    .refine(
-        (files) => !files || files.length === 0 || ACCEPTED_IMAGE_TYPES.includes(files[0].type),
-        "Only .jpg, .jpeg, .png and .webp formats are supported."
-    )
-    .optional()
-    .nullable(),
+        .instanceof(FileList)
+        .refine(
+            (files) => !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
+            'Max image size is 5MB'
+        )
+        .refine(
+            (files) => !files || files.length === 0 || ACCEPTED_IMAGE_TYPES.includes(files[0].type),
+            "Only .jpg, .jpeg, .png and .webp formats are supported."
+        )
+        .optional()
+        .nullable(),
 });
 
 const socialMediaSchema = z.object({

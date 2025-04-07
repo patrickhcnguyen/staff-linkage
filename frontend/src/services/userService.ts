@@ -1,43 +1,38 @@
-
 import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 
 export interface UserProfile {
   id: string;
   user_id: string;
-  full_name: string;
+  first_name: string;
+  last_name: string;
   avatar_url: string;
   email: string;
   phone: string;
   bio: string;
+  address: string;
   skills: string[];
   experience: string[];
   education: string[];
   created_at: string;
   updated_at: string;
   rating?: number;
-  years_experience?: number;
+  experience_years: number;
+  experience_months: number;
+  height_feet: number;
+  height_inches: number;
+  birth_date: Date;
   role?: string;
   gender?: "male" | "female" | "other" | "prefer-not-to-say";
-  address?: {
-    street?: string;
-    city: string;
-    state: string;
-    zipCode?: string;
-    coordinates: [number, number];
-    fullAddress?: string;
-  };
   certifications?: Array<{
     name: string;
     type: string;
     image?: string;
   }>;
-  social_media?: {
-    facebook?: string;
-    twitter?: string;
-    instagram?: string;
-    linkedin?: string;
-  };
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  linkedin?: string;
   gallery_images?: string[];
   resume_url?: string;
   resume_name?: string;
@@ -98,22 +93,53 @@ export const updateUserProfile = async (userId: string, updates: Partial<UserPro
 };
 
 export const uploadAvatar = async (userId: string, file: File): Promise<string | null> => {
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${userId}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-  const filePath = `avatars/${fileName}`;
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `${userId}/${fileName}`;
 
-  const { error } = await supabase.storage
-    .from('user-content')
-    .upload(filePath, file);
+    const { error } = await supabase.storage
+      .from('staff')
+      .upload(filePath, file);
 
-  if (error) {
-    console.error('Error uploading avatar:', error);
+    if (error) {
+      console.error('Error uploading avatar:', error);
+      return null;
+    }
+
+    const { data } = supabase.storage
+      .from('staff')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  } catch (error) {
+    console.error("Error in uploadAvatar:", error);
     return null;
   }
-
-  const { data } = supabase.storage
-    .from('user-content')
-    .getPublicUrl(filePath);
-
-  return data.publicUrl;
 };
+
+export const updateUserResume = async (userId: string, file: File) : Promise<string | null> => {
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `${userId}/${fileName}`;
+
+    const { error } = await supabase.storage
+      .from('staff')
+      .upload(filePath, file);
+
+    if (error) {
+      console.error('Error uploading resume:', error);
+      return null;
+    }
+
+    const { data } = supabase.storage
+      .from('staff')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  } catch (error) {
+    console.error("Error in updateUserResume:", error);
+    return null;
+  }
+}
