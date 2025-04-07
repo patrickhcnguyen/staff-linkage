@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/Shared/components/ui/button";
 import { Input } from "@/Shared/components/ui/input";
@@ -14,7 +13,6 @@ interface MediaStepProps {
 }
 
 const MediaStep = ({ form, onPrevious, onNext }: MediaStepProps) => {
-  const profilePhoto = form.watch('profilePhoto');
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
