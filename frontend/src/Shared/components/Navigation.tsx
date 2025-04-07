@@ -112,7 +112,7 @@ const Navigation = () => {
         <Link to="/about" className="text-foreground/60 hover:text-foreground" key="about">
           About
         </Link>,
-        <Link to="/dashboard" className="text-foreground/60 hover:text-foreground" key="dashboard">
+        <Link to="/staff-dashboard" className="text-foreground/60 hover:text-foreground" key="dashboard">
           Dashboard
         </Link>,
         <Link to="/jobs" className="text-foreground/60 hover:text-foreground" key="jobs">
