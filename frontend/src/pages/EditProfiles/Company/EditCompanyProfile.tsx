@@ -42,7 +42,7 @@ const EditCompanyProfile = () => {
   const [isEditingDetails, setIsEditingDetails] = useState(false);
   const [isEditingKeyPlayers, setIsEditingKeyPlayers] = useState(false);
   const [isGalleryDialogOpen, setIsGalleryDialogOpen] = useState(false);
-  
+  const [logoImage, setLogoImage] = useState<string | null>(null);
   const { company, loading: supabaseLoading, error: supabaseError } = useCompanyData();
   const [companyData, setCompanyData] = useState<CompanyProfileDB | null>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
@@ -157,27 +157,27 @@ const EditCompanyProfile = () => {
     const file = event.target.files?.[0];
     if (file && companyData) {
       try {
-        const logoUrl = await uploadCompanyLogo(companyData.id, file);
+        // First upload the file
+        const logoUrl = await uploadCompanyLogo(companyData.company_id, file); // Note: using company_id instead of id
         if (!logoUrl) throw new Error('Failed to upload logo');
 
-        const { error: updateError } = await supabase
-          .from('companies')
-          .update({ logo_url: logoUrl })
-          .eq('company_id', companyData.id);
-
-        if (updateError) throw updateError;
-
-        setCompanyData(prev => prev ? { ...prev, logo_url: logoUrl } : null);
-        
-        toast({
-          title: "Success",
-          description: "Profile image updated successfully"
+        // Then update the company record
+        const updated = await updateCompany(companyData.id, { 
+          logo_url: logoUrl 
         });
+
+        if (updated) {
+          setCompanyData(updated);
+          toast({
+            title: "Success",
+            description: "Company logo updated successfully"
+          });
+        }
       } catch (error) {
         console.error("Error uploading logo:", error);
         toast({
           title: "Error",
-          description: "Failed to upload image",
+          description: "Failed to upload logo",
           variant: "destructive"
         });
       }

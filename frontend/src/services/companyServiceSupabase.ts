@@ -102,25 +102,24 @@ export const getCompanyById = async (companyId: string): Promise<CompanyProfileD
 export const uploadCompanyLogo = async (companyId: string, file: File): Promise<string | null> => {
   try {
     const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `${companyId}/${fileName}`;
+    const fileName = `${companyId}/${Math.random()}.${fileExt}`;
 
-    const { error } = await supabase.storage
+    const { error: uploadError, data } = await supabase.storage
       .from('companies')
-      .upload(filePath, file);
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: true
+      });
 
-    if (error) {
-      console.error('Error uploading logo:', error);
-      return null;
-    }
+    if (uploadError) throw uploadError;
 
-    const { data } = supabase.storage
+    const { data: { publicUrl } } = supabase.storage
       .from('companies')
-      .getPublicUrl(filePath);
+      .getPublicUrl(fileName);
 
-    return data.publicUrl;
+    return publicUrl;
   } catch (error) {
-    console.error("Error in uploadCompanyLogo:", error);
+    console.error('Error uploading company logo:', error);
     return null;
   }
 };
