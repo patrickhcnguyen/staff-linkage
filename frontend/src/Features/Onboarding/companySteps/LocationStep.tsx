@@ -18,9 +18,15 @@ const LocationStep = ({ form, onNext, onPrevious, currentStep, totalSteps, isSub
   return (
     <div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(() => {
-          onNext();
-        })} className="space-y-6">
+        <form onSubmit={form.handleSubmit(
+          (data) => {
+            console.log('Form data:', data);
+            onNext();
+          },
+          (errors) => {
+            console.log('Validation errors:', errors);
+          }
+        )} className="space-y-6">
           <div className="space-y-4">
             {/* Address Fields */}
             <div className="grid grid-cols-2 gap-4">
