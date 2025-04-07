@@ -81,7 +81,7 @@ const StaffOnboardingPage = () => {
         position: "top-center"
       });
       
-      window.location.href = "/dashboard";
+      window.location.href = "/staff-dashboard";
 
     } catch (error: any) {
       console.error("Error saving profile:", error);

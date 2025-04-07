@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { SearchFilters } from "@/Shared/components/talent/SearchFilters";
 import { TalentCard } from "@/Shared/components/talent/TalentCard";
 import { TalentProfileSheet } from "@/Shared/components/talent/TalentProfileSheet";
 import { calculateDistance } from "@/Shared/utils/distance";
 import { TalentBase } from "@/types/talent";
+import { supabase } from "@/lib/supabase";
 
-const talents: TalentBase[] = [
+const hardcodedTalents: TalentBase[] = [
   {
     id: 1,
     name: "Sarah Johnson",
@@ -145,7 +146,49 @@ const TalentDirectory = () => {
   const [radius, setRadius] = useState("50");
   const [userCoordinates, setUserCoordinates] = useState<{lat: number, lng: number} | null>(null);
   const [selectedTalent, setSelectedTalent] = useState<TalentBase | null>(null);
+  const [supabaseTalents, setSupabaseTalents] = useState<TalentBase[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('is_onboarded', true);
+
+        if (error) throw error;
+
+        const formattedProfiles: TalentBase[] = (data || []).map(profile => ({
+          id: profile.id,
+          name: `${profile.first_name} ${profile.last_name}`,
+          image: profile.avatar_url || "/placeholder.svg",
+          photos: [profile.avatar_url || "/placeholder.svg"],
+          location: profile.address || "Location not specified",
+          coordinates: { lat: 0, lng: 0 },
+          rating: 0,
+          reviewCount: 0,
+          specialties: profile.skills || [],
+          yearsExperience: profile.experience_years || 0,
+          email: profile.email,
+          phone: profile.phone,
+          availability: [profile.travel_duration || "Flexible"],
+          bio: `${profile.experience_years} years, ${profile.experience_months} months of experience`,
+          jobsWorked: [],
+          reviews: [],
+          certifications: []
+        }));
+
+        setSupabaseTalents(formattedProfiles);
+      } catch (error) {
+        console.error('Error fetching profiles:', error);
+      }
+    };
+
+    fetchProfiles();
+  }, []);
+
+  const allTalents = [...hardcodedTalents, ...supabaseTalents];
 
   const handleLocationSearch = async (value: string) => {
     setLocationSearch(value);
@@ -167,7 +210,7 @@ const TalentDirectory = () => {
     }
   };
 
-  const filteredTalents = talents.filter(talent => {
+  const filteredTalents = allTalents.filter(talent => {
     const matchesSearch = 
       talent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       talent.specialties.some(specialty => 

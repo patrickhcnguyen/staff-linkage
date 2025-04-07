@@ -73,8 +73,8 @@ const CompanyOnboarding = () => {
         description: "Company profile created successfully!"
       });
       
-      window.location.href = "/dashboard";  // Force a full page reload and navigation
-      return; // Make sure we exit after navigation
+      window.location.href = "/company-dashboard"; 
+      return;
     } catch (error) {
       console.error("Error creating company:", error);
       toast("Error", {
