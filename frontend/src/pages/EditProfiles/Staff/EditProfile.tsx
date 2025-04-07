@@ -208,7 +208,7 @@ const EditProfile = () => {
     jobs_count: 0,
     reviews_count: 0
   });
-  const [profileImage, setProfileImage] = useState("/placeholder.svg");
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>(Array(9).fill(""));
   const [isEditingInfo, setIsEditingInfo] = useState(false);
   const [skills, setSkills] = useState<string[]>([]);
@@ -242,6 +242,7 @@ const EditProfile = () => {
         
         if (profileData) {
           setProfile(profileData as UserProfile);
+          setProfileImage(profileData.avatar_url || "/placeholder.svg");
           setSkills(profileData.skills || []);
           setGalleryImages(profileData.gallery_images || Array(9).fill(""));
           
@@ -323,21 +324,17 @@ const EditProfile = () => {
     const file = event.target.files?.[0];
     if (file && user) {
       try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const filePath = `avatars/${fileName}`;
+        const avatarUrl = await uploadAvatar(user.id, file);
+        if (!avatarUrl) throw new Error('Failed to upload avatar');
 
-        const { error: uploadError } = await supabase.storage
-          .from('user-content')
-          .upload(filePath, file);
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ avatar_url: avatarUrl })
+          .eq('user_id', user.id);
 
-        if (uploadError) throw uploadError;
+        if (updateError) throw updateError;
 
-        const { data } = supabase.storage
-          .from('user-content')
-          .getPublicUrl(filePath);
-
-        setProfileImage(data.publicUrl);
+        setProfileImage(avatarUrl);
         
         toast({
           title: "Success",
